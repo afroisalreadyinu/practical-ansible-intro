@@ -113,22 +113,31 @@ inventory file will look like the following:
 
     server ansible_ssh_host=A.B.C.D ansible_ssh_user=username
 
-where `A.B.C.D` is the IP addres, and username is the remote username.
+where `A.B.C.D` is the IP addres, and `username` is the remote
+username.
 
-## Ping it
+### Ping it
 
-Run the following command:
+Once you have your test server set up, run the following command to
+check whether everything is working:
 
     ansible -i inventory server -m ping
 
-You're right, this is too much stuff for a simple ping. But keep in
-mind two things:
+As a response, you should see the following, anything else means you
+fucked up:
 
-* Ansible was written for big-ass server infrastructure automation, a
-  puny ping is too insignificant to simplify.
+    server | success >> {
+        "changed": false,
+        "ping": "pong"
+    }
 
-* The `ansible` command is used only for testing individual modules
-  like `ping`, not for actually automating stuff.
-
-WTF is a module, you say? Here is the very basics of how Ansible is
-organized.
+You're right, this is too much stuff for a simple ping. The
+stand-alone `ansible` command is rarely used, though; it is mostly for
+the purpose of testing individual modules. The above ping command does
+the following: Use the inventory passed with the `-i` argument to run
+the module passed with the `-m` argument. You're thinking "WTF is a
+module", just be patient for another fucking minute, OK? The ping
+module does not need any arguments, but if it did, it would have been
+possible to pass them with another switch. But as mentioned, we are
+interested in more complicated stuff and not a shitty replacement for
+`ssh -c`, so read on for plays, roles, and more.
