@@ -141,3 +141,29 @@ module does not need any arguments, but if it did, it would have been
 possible to pass them with another switch. But as mentioned, we are
 interested in more complicated stuff and not a shitty replacement for
 `ssh -c`, so read on for plays, roles, and more.
+
+## Plays, Modules, etc
+
+There are only four fundamental concepts necessary for grokking
+Ansible; if you understand these, you're halfway there. To make it as
+simple as possible, here is a plaing fucking list:
+
+* **Modules** are units of action. For pretty much everything you
+    would do on a server, there is a module. They can be built-in or
+    add-ons. Examples are ping, copy/modify/delete file, install
+    packages, start/stop/restart a service etc.
+
+* **Inventory** is the specification of a set of servers. Ansible
+    provides very convenient ways to specify sets of servers, and
+    aliases for these.
+
+* **Roles** are collections of actions that serve a purpose, like
+    installing, configuring and then starting a database server, or
+    retrieving code, building it, moving it to servers and runing it.
+
+* **Playbooks** are collections of actions to run on a cluster of
+    servers. Plays also contain data to make sure that the pieces fit
+    together.
+
+So in effect, roles are collections of modules, and playbooks are
+specifications of which roles should be matched to which inventory.
