@@ -16,7 +16,7 @@ the other Ansible tutorials.
 ## What the fuck is Ansible?
 
 It's a provisioning tool. That is, it does stuff on computers that you
-want to repeat regularly. It's strenghts are:
+want to repeat regularly. Its strenghts are:
 
 * It does not need any extra shit installed on the remote computer.
 
