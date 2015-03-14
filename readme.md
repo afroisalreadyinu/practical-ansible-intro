@@ -33,8 +33,8 @@ already running, nothing to do, move on.
 
 ## How the fuck do I install it?
 
-Read their (fucking
-documentation)[http://docs.ansible.com/intro_installation.html].
+Read their [fucking
+documentation](http://docs.ansible.com/intro_installation.html).
 
 ## How the fuck do I run it?
 
@@ -72,7 +72,7 @@ in VMs, the computer won't get slower when our crappy code runs in
 them anyway.
 
 If you still insist on a VM, at least use Vagrant. It makes shit
-easy. (Install it)[https://www.vagrantup.com/] and start the default
+easy. [Install it](https://www.vagrantup.com/) and start the default
 Ubuntu machine with `vagrant init hashicorp/precise32`. SSH into it
 with `vagrant ssh`, do an `ls` or whatever silly command you can think
 of to make sure it's working. All right, that was the easy part. Now
@@ -100,7 +100,7 @@ Last but not least here is how the inventory file should look like:
 I've got no snarky comments to make about these guys. Their shit just
 works. Kudos to them. One thing you have to do to use DigitalOcean is
 to create an ssh key.
-Go create a fucking account (here)[https://www.digitalocean.com/]. You
+Go create a fucking account [here](https://www.digitalocean.com/). You
 can then either use their web interface to create a "droplet" (let's
 invent our own name instead of calling them fucking virtual machines
 or servers, not that it costs us anything, right?).
