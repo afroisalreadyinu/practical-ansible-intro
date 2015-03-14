@@ -55,7 +55,7 @@ In terms of on which computer to test, you have three options:
 
 The recommended option is DigitalOcean. It's cheap, fast and
 foolproof. Don't be a cheapass, get your credit card out and skip to
-the second section.
+the [relevant section](#digitalocean).
 
 Depending on which option you choose, the inventory file, the file
 which tells Ansible how to reach a computer, is going to be a bit
@@ -95,7 +95,7 @@ Last but not least here is how the inventory file should look like:
 
     server ansible_ssh_port=2222 ansible_ssh_host=127.0.0.1
 
-### DigitalOcean
+### <a name="digitalocean"></a>DigitalOcean
 
 I've got no snarky comments to make about these guys. Their shit just
 works. Kudos to them. One thing you have to do to use DigitalOcean is
