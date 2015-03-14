@@ -109,9 +109,9 @@ or servers, not that it costs us anything, right?).
 
 The only thing you need is an SSH key with which you can log in to the
 remote computer, and the IP address of the computer. In this case, the
-IP address will look like the following:
+inventory file will look like the following:
 
-   server ansible_ssh_host=A.B.C.D ansible_ssh_user=username
+    server ansible_ssh_host=A.B.C.D ansible_ssh_user=username
 
 where `A.B.C.D` is the IP addres, and username is the remote username.
 
