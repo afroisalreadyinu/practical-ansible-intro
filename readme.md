@@ -2,11 +2,11 @@
 
 Before the swearing starts, the why and the how:
 
-*Why another Ansible guide?* Because Ansible is a great tool, the
+**Why another Ansible guide?** Because Ansible is a great tool, the
  existing tutorials overcomplicate the matters, and I need a better
  way to learn it.
 
-*Why so immature?* Because I hate anything and everything remotely
+**Why so immature?** Because I hate anything and everything remotely
  related to system administration, and need a vent. Also, I'm
  immature.
 
@@ -67,7 +67,7 @@ Fucking virtualization. Isn't it awesome that you can run a computer
 in your fucking computer (xzibit.jpg), and go ape wild on it? Like
 `sudo rm -rf /*` wild? It's not like the VM is running on your
 computer; obviously, the memory and processing power are provided by
-the VM fairies from the heavens. So let's put fucking **everything**
+the VM fairies from the heavens. So let's put fucking *everything*
 in VMs, the computer won't get slower when our crappy code runs in
 them anyway.
 
