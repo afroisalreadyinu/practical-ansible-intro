@@ -99,11 +99,19 @@ Last but not least here is how the inventory file should look like:
 
 I've got no snarky comments to make about these guys. Their shit just
 works. Kudos to them. One thing you have to do to use DigitalOcean is
-to create an ssh key.
-Go create a fucking account [here](https://www.digitalocean.com/). You
-can then either use their web interface to create a "droplet" (let's
-invent our own name instead of calling them fucking virtual machines
-or servers, not that it costs us anything, right?).
+to create an ssh key.  Go create a fucking account
+[here](https://www.digitalocean.com/). The easiest way to create a
+"droplet" is to use their web interface. If you do so, don't forget to
+add your SSH key. It's the last box at the bottom of the form before
+the "Create Droplet" button. Just copy the contents of
+`~/.ssh/id_rsa.pub` or wherever you have your SSH key and paste in there.
+
+In case you want to create and remove droplets liberally, and if you
+are among the chosen few who can get a Python script with dependencies
+working, you can use the `droplets.py` in this repo to create, list
+and delete new DigitalOcean droplets. This script will create the
+droplet with your SSH key already included, which will save you one
+more step.
 
 ### Ancient computer somewhere
 
