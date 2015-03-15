@@ -1,8 +1,10 @@
 """
-
-Script to create, list and delete digitalocean droplets. Create a
-virtualenv, pip install python-digitalocean, then python
-create_droplet.py create|list|delete
+Script to create, list and delete digitalocean droplets. First,
+go to the Apps & API section on your DigitalOcean profile
+page. Create a token with read & write access, and copy it into
+~/.digitalocean. Create a virtualenv, pip install
+python-digitalocean, then python create_droplet.py
+create|list|delete
 
 """
 
