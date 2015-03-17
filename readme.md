@@ -202,24 +202,39 @@ Here is how a concise playbook that achieves this looks like:
 
 ```yml
 - hosts: server
+  sudo: yes
   tasks:
     - name: Create admin user
       user: name=admini
-      sudo: yes
 
     - name: Sudo rights for admini
       lineinfile: dest=/etc/sudoers state=present regexp='^admini' line='admini ALL=(ALL) NOPASSWD:ALL'
-      sudo: yes
+
+    - name: Copy SSH key to admini
+      authorized_key: user=admini key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+    - name: Remove root ssh login
+      lineinfile: dest=/etc/ssh/sshd_config regexp="^PermitRootLogin" line="PermitRootLogin no" state=present
 ```
 
 You're probably asking yourself about the format. It's YAML, yet
 another markup language. The good things about it: it's neither XML
 nor JSON. The bad thing: It's a fucking markup language, and sometimes
-you have to bend over backwards to get what the crappiest language
-would get done in two lines of code. That's the way Ansible rolls, so
-you'll have to live with it.
+you have to bend over backwards to get what the crappiest programming
+language would get done in two lines of code. That's the way Ansible
+rolls, so you'll have to deal with it. In this simple example, we are
+listing the tasks within the playbook, which should be OK for a small
+provisioning exercise, but it should be obvious that as the number of
+tasks grows, and the inventory specification gets more complicated,
+this method will not work. Each task has a name, which is more like a
+description, and a specification on the next line. The specification
+starts with the name of a module, and continues with parameters as
+fields. [This list of all available ansible
+modules](http://docs.ansible.com/list_of_all_modules.html) should
+leave no doubts that pretty much every need can be served out of the
+box.
 
-In order to run this playbook, save it in a file named
+In order to run the above playbook, save it in a file named
 `playbook_simple.yml` next to the inventory. Or just navigate to the
 `example` directory in this repo and copy your inventory into that
 directory. Then run the following command:
@@ -228,4 +243,6 @@ directory. Then run the following command:
 
 The `ansible-playbook` command runs playbooks instead of single
 modules, and is where the real Ansible magic lies, so you'll be using
-it much more often.
+it much more often. When you run the above command, you should see a
+list of the tasks by name, followed by information on whether anything
+changed, and a final line that recaps this information.

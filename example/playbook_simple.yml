@@ -1,9 +1,14 @@
 - hosts: server
+  sudo: yes
   tasks:
     - name: Create admin user
       user: name=admini
-      sudo: yes
 
     - name: Sudo rights for admini
       lineinfile: dest=/etc/sudoers state=present regexp='^admini' line='admini ALL=(ALL) NOPASSWD:ALL'
-      sudo: yes
+
+    - name: Copy SSH key to admini
+      authorized_key: user=admini key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+    - name: Remove root ssh login
+      lineinfile: dest=/etc/ssh/sshd_config regexp="^PermitRootLogin" line="PermitRootLogin no" state=present
