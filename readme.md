@@ -173,5 +173,57 @@ simple as possible, here is a plaing fucking list:
     servers. Plays also contain data to make sure that the pieces fit
     together.
 
-So in effect, roles are collections of modules, and playbooks are
-specifications of which roles should be matched to which inventory.
+So in effect, **roles are collections of module applications, and
+playbooks are specifications of which roles should be matched to which
+inventory**. Module application means that a module is applied to a
+host with some arguments.
+
+A sidenote: In the [official
+documentation](http://docs.ansible.com/playbooks.html) it says that
+"Playbooks are Ansible’s configuration, deployment, and orchestration
+language". What kind of retarded bullshit technical writing is this?
+Playbooks are not the fucking language, they are what you write in the
+fucking language. Can't they pay for a fucking technical writer? Or
+even an editor? Or just some sane person with a fucking highschool
+degree who can proofread their shit? For fucks sake.
+
+### Writing plays & roles
+
+OK, let's get going. The example I want to cover here is the average
+case of an RDBMS-driven website running on Python. What do we need on
+this server? Well, first of all, you need to forbid root SSH access,
+and create an admin user with sudo rights who is allowed to do rooty
+stuff instead. The gods of sysadministan have agreed that this is the
+right thing to do; who are we to contest that?  Not that it sinks your
+server's chances of getting hacked, but I don't want to be the one
+responsible if it happens.
+
+Here is how a concise playbook that achieves this looks like:
+
+    - hosts: server
+      tasks:
+        - name: Create admin user
+          user: name=admini
+          sudo: yes
+
+        - name: Sudo rights for admini
+          lineinfile: dest=/etc/sudoers state=present regexp='^admini' line='admini ALL=(ALL) NOPASSWD:ALL'
+          sudo: yes
+
+You're probably asking yourself about the format. It's YAML, yet
+another markup language. The good things about it: it's neither XML
+nor JSON. The bad thing: It's a fucking markup language, and sometimes
+you have to bend over backwards to get what the crappiest language
+would get done in two lines of code. That's the way Ansible rolls, so
+you'll have to live with it.
+
+In order to run this playbook, save it in a file named
+`playbook_simple.yml` next to the inventory. Or just navigate to the
+`example` directory in this repo and copy your inventory into that
+directory. Then run the following command:
+
+    ansible-playbook -i inventory playbook_simple.yml
+
+The `ansible-playbook` command runs playbooks instead of single
+modules, and is where the real Ansible magic lies, so you'll be using
+it much more often.

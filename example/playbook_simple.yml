@@ -1,0 +1,9 @@
+- hosts: server
+  tasks:
+    - name: Create admin user
+      user: name=admini
+      sudo: yes
+
+    - name: Sudo rights for admini
+      lineinfile: dest=/etc/sudoers state=present regexp='^admini' line='admini ALL=(ALL) NOPASSWD:ALL'
+      sudo: yes
