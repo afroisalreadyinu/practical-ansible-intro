@@ -200,15 +200,17 @@ responsible if it happens.
 
 Here is how a concise playbook that achieves this looks like:
 
-    - hosts: server
-      tasks:
-        - name: Create admin user
-          user: name=admini
-          sudo: yes
+```yml
+- hosts: server
+  tasks:
+    - name: Create admin user
+      user: name=admini
+      sudo: yes
 
-        - name: Sudo rights for admini
-          lineinfile: dest=/etc/sudoers state=present regexp='^admini' line='admini ALL=(ALL) NOPASSWD:ALL'
-          sudo: yes
+    - name: Sudo rights for admini
+      lineinfile: dest=/etc/sudoers state=present regexp='^admini' line='admini ALL=(ALL) NOPASSWD:ALL'
+      sudo: yes
+```
 
 You're probably asking yourself about the format. It's YAML, yet
 another markup language. The good things about it: it's neither XML
