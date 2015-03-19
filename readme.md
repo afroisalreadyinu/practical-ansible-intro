@@ -245,4 +245,42 @@ The `ansible-playbook` command runs playbooks instead of single
 modules, and is where the real Ansible magic lies, so you'll be using
 it much more often. When you run the above command, you should see a
 list of the tasks by name, followed by information on whether anything
-changed, and a final line that recaps this information.
+changed, and a final line that recaps this information. Here is what
+you should see when you run `playbook_simple.yml` for the first time
+on a fresh server:
+
+    PLAY RECAP **********************************************************
+    server           : ok=5    changed=4    unreachable=0    failed=0
+
+Among the 4 tasks we had in our playbook, all have been executed, and
+led to changes in the system, thus the entry `changed=4`. If we run
+the same playbook once more, however, here is what we see:
+
+    PLAY RECAP ************************************************************
+    server             : ok=5    changed=0    unreachable=0    failed=0
+
+Now, `changed=0`, because the tasks do not have to be run, as they
+would not lead to any changes in the system. This is what is meant
+with *idempotent*; running this playbook (and ideally any playbook)
+will not lead to a different system, no matter how many times you've
+already run it.
+
+## Who is Ansible on my server?
+
+One thing that is relatively confusing with Ansible is who the fuck
+you actually are on a server. There are a number of different configs,
+command line switches, and playbook options that have an effect on the
+user Ansible runs commands as. Here is a tiny playbook that we will
+use to print the Ansible user (can be found in `example/whoami.yml:
+
+```yml
+- hosts: server
+  tasks:
+    - name: Print the actual user
+      command: whoami
+```
+
+In order to also see the output of this command, you have to run the
+playbook command with the next level of verbosity:
+
+    ansible-playbook -i inventory whoami.py -v
