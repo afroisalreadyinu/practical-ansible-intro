@@ -80,16 +80,23 @@ you have to copy your actual SSH key into this VM. Assuming that the
 key you want to copy is in `/Path/to/your/id_rsa.pub`, run the
 following command:
 
-    scp -P 2222  /Path/to/your/id_rsa.pub vagrant@127.0.0.1:/home/vagrant
+    scp -P 2222  /Path/to/your/id_rsa.pub vagrant@127.0.0.1:/tmp
 
 If you are prompted for a password, enter `vagrant`. Now SSH into the
 machine again with `vagrant ssh` from within the directory where it
-was created, and run the following:
+was created, and run the following commands in order add your key to
+the root account's authorized keys:
 
-    cat id_rsa.pub >> ~/.ssh/authorized_keys
+    sudo su
+    mkdir -p -m 700 /root/.ssh
+    cat /tmp/id_rsa.pub >> /root/.ssh/authorized_keys
+    chmod 600 /root/.ssh/authorized_keys
 
 Now you should be able to SSH from anywhere on the host computer into
-the VM.
+the VM as root. The default Vagrant box comes with the user `vagrant`
+that has sudo rights, and one could run most of the commands we will
+use for demo purposes with that user. The aim of adding the root user
+is to make the following examples uniform.
 
 Last but not least here is how the inventory file should look like:
 
@@ -202,6 +209,7 @@ Here is how a concise playbook that achieves this looks like:
 
 ```yml
 - hosts: server
+  remote_user: root
   sudo: yes
   tasks:
     - name: Create admin user

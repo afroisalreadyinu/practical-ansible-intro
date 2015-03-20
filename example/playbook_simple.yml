@@ -1,5 +1,6 @@
 - hosts: server
   sudo: yes
+  remote_user: root
   tasks:
     - name: Create admin user
       user: name=admini
