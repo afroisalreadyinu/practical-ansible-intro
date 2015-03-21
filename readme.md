@@ -283,6 +283,7 @@ use to print the Ansible user (can be found in `example/whoami.yml:
 
 ```yml
 - hosts: server
+  remote_user: admini
   tasks:
     - name: Print the actual user
       command: whoami
@@ -292,3 +293,38 @@ In order to also see the output of this command, you have to run the
 playbook command with the next level of verbosity:
 
     ansible-playbook -i inventory whoami.py -v
+
+Here is the output we should see when we run this playbook on the
+server that we provisioned with `playbook_simple.py`:
+
+```
+# bla bla bla....
+TASK: [Print the actual user] *************************************************
+changed: [server] => {"changed": true, "cmd": ["whoami"], "delta": "0:00:00.002952", "end": "2015-03-21 20:54:58.971190", "rc": 0, "start": "2015-03-21 20:54:58.968238", "stderr": "", "stdout": "admini"}
+
+# a little more bla bla
+```
+
+So the `remote_user` instruction works; we are in fact `admini` on the
+server. But what if we wanted to run a command that requires sudo? In
+that case, we simply add the `sudo: true` option, with the playbook
+now looking like this:
+
+```yml
+- hosts: server
+  remote_user: admini
+  sudo: true
+  tasks:
+    - name: Print the actual user
+      command: whoami
+```
+
+which leads to the following output:
+
+```
+TASK: [Print the actual user] *************************************************
+changed: [server] => {"changed": true, "cmd": ["whoami"], "delta": "0:00:00.001985", "end": "2015-03-21 20:56:51.932011", "rc": 0, "start": "2015-03-21 20:56:51.930026", "stderr": "", "stdout": "root"}
+```
+
+The default user which Ansible sudo's as is, understandably,
+root. This can be changed, though, with the `sudo_user` instruction.

@@ -1,4 +1,5 @@
 - hosts: server
+  remote_user: admini
   tasks:
     - name: Print the actual user
       command: whoami
