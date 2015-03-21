@@ -328,3 +328,29 @@ changed: [server] => {"changed": true, "cmd": ["whoami"], "delta": "0:00:00.0019
 
 The default user which Ansible sudo's as is, understandably,
 root. This can be changed, though, with the `sudo_user` instruction.
+
+Supplying the user to connect as in each and every playbook can be
+cumbersome and error-prone if you have many of them, so Ansible offers
+an easy way to set a default for all playbooks in a directory, by
+creating an `ansible.cfg` file and putting the following in there:
+
+```
+[defaults]
+remote_user = admini
+```
+
+If you don't specify another remote user in a playbook, this option in
+the config file will be used to determine which user to SSH as. There
+are two more ways to specify the remote user. These are:
+
+- As a command line option to `ansible-playbook`, with the switch `-u`
+
+- As a part of the inventory, with the property `ansible_ssh_user`
+
+The precedence of these options is as follows:
+
+    inventory > playbook > command line > ansible.cfg
+
+That is, specification in the inventory overrides everything else,
+whereas the default value in `ansible.cfg` is, as the name implies,
+only a default.
