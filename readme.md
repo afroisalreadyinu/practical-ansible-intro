@@ -244,8 +244,8 @@ box.
 
 In order to run the above playbook, save it in a file named
 `playbook_simple.yml` next to the inventory. Or just navigate to the
-`example` directory in this repo and copy your inventory into that
-directory. Then run the following command:
+`examples/part1` directory in this repo and copy your inventory into
+that directory. Then run the following command:
 
     ansible-playbook -i inventory playbook_simple.yml
 
@@ -279,7 +279,8 @@ One thing that is relatively confusing with Ansible is who the fuck
 you actually are on a server. There are a number of different configs,
 command line switches, and playbook options that have an effect on the
 user Ansible runs commands as. Here is a tiny playbook that we will
-use to print the Ansible user (can be found in `example/whoami.yml:
+use to print the Ansible user (can be found in
+`examples/part1/whoami.yml`):
 
 ```yml
 - hosts: server
