@@ -364,7 +364,8 @@ need for the above mentioned scenario of RDBMS-driven website in
 Python. The packages we need are PostgresSQL, Nginx, Git and
 virtualenv. Before we install these, though, it makes sense to update
 the apt cache to get the latest versions of these packages. Here is a
-playbook that does all of these:
+playbook that does all of these
+(`example/part1/install_packages.yml`):
 
 ```yml
 - hosts: server
