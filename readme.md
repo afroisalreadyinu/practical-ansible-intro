@@ -397,7 +397,7 @@ following file structure:
 
 ```
 playbook.yml
-role/
+roles/
     common/
         tasks/
             main.yml
@@ -425,3 +425,10 @@ suckage. The third directory, `files`, is for storing any files that
 have to be copied to servers as-is. The last directory, `templates`,
 contains Jinja2 templates that need to be rendered before getting
 copied on to the server.
+
+Let's move the tasks above that installed packages into a role called
+`packages`, and use it in a playbook. You can find the playbook and
+the roles in the directory `example/part2`. The directory tree becomes
+rather convoluted even for the simplest role-based organization, but
+again, this is how Ansible rolls. Here is how
+`roles/packages/tasks/main.yml` looks:
