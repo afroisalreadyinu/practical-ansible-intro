@@ -354,3 +354,72 @@ The precedence of these options is as follows:
 That is, specification in the inventory overrides everything else,
 whereas the default value in `ansible.cfg` is, as the name implies,
 only a default.
+
+## Roles
+
+Now that we have the basics covered, let's actually start provisioning
+the server. We will start by installing a number of packages that we
+need for the above mentioned scenario of RDBMS-driven website in
+Python. The packages we need are PostgresSQL, Nginx, Git and
+virtualenv. Before we install these, though, it makes sense to update
+the apt cache to get the latest versions of these packages. Here is a
+playbook that does all of these:
+
+```yml
+- hosts: server
+  sudo: yes
+  tasks:
+
+    - name: Update apt cache
+      apt: update_cache=yes
+
+    - name: Install required packages
+      apt: pkg={{ item }}
+      with_items:
+        - nginx
+        - postgresql
+        - git
+```
+
+Alright, we have ourselves a web and a database server, and the tools
+to check out our code. Now we need to go ahead and actually check out
+our code, and do stuff with it. It would be rather messy if we
+continued adding more tasks into this play, however, not to mention
+how we organize the configuration files and templates that will come
+up later. Therefore, let's take the step mentioned earlier and
+separate out our playbooks into roles. A role gathers tasks that are
+conceptually coherent, and bundles them with some other things like
+data and triggers, which we will talk about later. Roles typically
+reside in the `roles` directory next to playbooks, and have the
+following file structure:
+
+```
+playbook.yml
+role/
+    common/
+        tasks/
+            main.yml
+        handlers/
+            main.yml
+    dbserver/
+        tasks/
+            main.yml
+        handlers/
+            main.yml
+        files/
+            pg_config.cfg
+        templates/
+            pg_hba.conf.j2
+```
+
+A few things about this layout. The file that contains the tasks
+should be named `main.yml`, which means that you will end up with as
+many `main.yml` files as you have roles, which honestly sucks. There
+are some new directory names there. The first is `handlers`. These are
+triggers that can be registered with tasks, such as reloading nginx
+configuration or restarting a service when it's redeployed. The
+filename for these triggers is also `main.yml`, which adds to the
+suckage. The third directory, `files`, is for storing any files that
+have to be copied to servers as-is. The last directory, `templates`,
+contains Jinja2 templates that need to be rendered before getting
+copied on to the server.
