@@ -1,0 +1,7 @@
+- hosts: server
+  vars:
+    home_dir: /home/admini/
+  roles:
+    - packages
+    - code
+    - build

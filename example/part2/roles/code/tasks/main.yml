@@ -1,0 +1,11 @@
+# shamelessly copied from http://hakunin.com/six-ansible-practices
+- name: ensure github.com is a known host
+  lineinfile:
+    dest: /home/admini/.ssh/known_hosts
+    create: yes
+    state: present
+    line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
+    regexp: "^github\\.com"
+
+- name: Checkout git project
+  git: repo="{{ lookup('pipe', 'git config --get remote.origin.url') }}" dest=/home/admini/code

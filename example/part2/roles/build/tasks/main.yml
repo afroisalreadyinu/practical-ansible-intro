@@ -1,0 +1,11 @@
+- name: Create venv directory
+  file: path="{{ home_dir }}venvs" state=directory
+
+- name: Install facetweet
+  pip: requirements="{{ home_dir }}code/example/websites/facetweet/requirements.txt" virtualenv="{{ home_dir }}venvs/facetweet"
+
+# TODO
+
+# - Create demo web projects in example
+# - Database creation with tags
+# - Add tasks to create upstart configs for these
