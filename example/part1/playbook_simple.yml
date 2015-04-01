@@ -1,9 +1,8 @@
 - hosts: server
-  sudo: yes
   remote_user: root
   tasks:
-    - name: Create admin user
-      user: name=admini
+    - name: Create admini user
+      user: name=admini shell=/bin/bash
 
     - name: Sudo rights for admini
       lineinfile: dest=/etc/sudoers state=present regexp='^admini' line='admini ALL=(ALL) NOPASSWD:ALL'
