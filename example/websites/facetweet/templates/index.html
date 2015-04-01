@@ -1,8 +1,18 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
-  <head><title>Jan Slaby</title>
+  <head><title>FaceTweet</title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
   </head>
   <body>
-    Hello!
+    <h1>FaceTweet</h1>
+    <div ng-controller="facetweet">
+      <h2>Links</h2>
+      <ul>
+        {% for link in links %}
+        <li>{{ link }}</li>
+        {% endfor %}
+      </ul>
+    </div>
   </body>
