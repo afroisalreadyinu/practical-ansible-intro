@@ -1,35 +1,26 @@
-# The expletive-laden guide to Ansible
+# A Practical Guide to Ansible
 
-Before the swearing starts, the why and the how:
+Why another Ansible guide? Because Ansible is a great tool, but the
+existing tutorials overcomplicate the matters, and I need a better way
+to learn it.
 
-**Why another Ansible guide?** Because Ansible is a great tool, the
- existing tutorials overcomplicate the matters, and I need a better
- way to learn it.
-
-**Why so immature?** Because I hate anything and everything remotely
- related to system administration, and need a vent. Also, I'm
- immature.
-
-From here on, tons of swearing, so if it's not your thing, try one of
-the other Ansible tutorials.
-
-## What the fuck is Ansible?
+## What is Ansible?
 
 It's a provisioning tool. That is, it does stuff on computers that you
 want to repeat regularly. Its strenghts are:
 
-* It does not need any extra shit installed on the remote computer.
+* It does not need any extra software installed on the remote computer.
 
 * It's fast.
 
-* And most importantly: *It's idem-fucking-potent*.
+* And most importantly: *It's idempotent*.
 
-So, what the freaking fuck is idempotent? It means that Ansible is
-sort-of, kind-of clever enough to figure out that whatever crap you
-ask it to do, is actually not necessary, since nothing would
-change. So you want to copy a fucking file from one place to another?
-No need to do so, it's already there. Start some processes? They are
-already running, nothing to do, move on.
+So, what is idempotent? It means that Ansible is sort-of, kind-of
+clever enough to figure out that whatever crap you ask it to do, is
+actually not necessary, since nothing would change. So you want to
+copy a file from one place to another?  No need to do so, it's already
+there. Start some processes? They are already running, nothing to do,
+move on.
 
 ## How the fuck do I install it?
 
