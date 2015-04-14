@@ -2,12 +2,20 @@
   sudo: true
   apt: update_cache=yes
 
+- name: Ensure all required locales are present
+  locale_gen: name="en_US.UTF-8" state=present
+
+- name: set locale to UTF-8
+  sudo: true
+  command: /usr/sbin/update-locale LANG="en_US.UTF-8" LC_ALL="en_US.UTF-8" LANGUAGE="en_US.UTF-8"
+
 - name: Install required packages
   sudo: true
   apt: pkg={{ item }}
   with_items:
     - nginx
     - postgresql
+    - python-psycopg2 #also required by ansible
     - git
     - python-virtualenv
     - python-dev

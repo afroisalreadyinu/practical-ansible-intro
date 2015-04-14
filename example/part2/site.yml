@@ -1,7 +1,13 @@
 - hosts: server
   vars:
     home_dir: /home/admini/
+    db_password: test
+    debug: False
+    database_uri: "dburi"
+    base_url: "blah"
+    secret_key: "blahblah"
   roles:
     - packages
+    - db
     - code
     - build
