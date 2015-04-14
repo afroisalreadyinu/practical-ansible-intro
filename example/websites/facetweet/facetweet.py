@@ -16,7 +16,9 @@ from flask.ext.sqlalchemy import SQLAlchemy
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask('facetweet', template_folder=tmpl_dir)
+
 app.config.from_envvar("APP_CONFIG")
+
 db = SQLAlchemy(app)
 
 class Post(db.Model):
