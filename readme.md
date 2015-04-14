@@ -204,7 +204,7 @@ Here is how a concise playbook that achieves this looks like:
   sudo: yes
   tasks:
     - name: Create admin user
-      user: name=admini
+      user: name=admini shell=/bin/bash
 
     - name: Sudo rights for admini
       lineinfile: dest=/etc/sudoers state=present regexp='^admini' line='admini ALL=(ALL) NOPASSWD:ALL'
@@ -382,11 +382,10 @@ how we organize the configuration files and templates that will come
 up later. Therefore, let's take the step mentioned earlier and
 separate out our playbooks into roles. A role gathers tasks that are
 conceptually coherent, and bundles them with some other things like
-data and triggers, which we will talk about later. Roles typically
-reside in the `roles` directory next to playbooks, and have the
-following file structure:
+data and triggers. Roles reside in the `roles` directory next to
+playbooks, and have the following file structure:
 
-```
+```yml
 playbook.yml
 roles/
     common/
@@ -405,21 +404,72 @@ roles/
             pg_hba.conf.j2
 ```
 
-A few things about this layout. The file that contains the tasks
-should be named `main.yml`, which means that you will end up with as
-many `main.yml` files as you have roles, which honestly sucks. There
-are some new directory names there. The first is `handlers`. These are
-triggers that can be registered with tasks, such as reloading nginx
-configuration or restarting a service when it's redeployed. The
-filename for these triggers is also `main.yml`, which adds to the
-suckage. The third directory, `files`, is for storing any files that
-have to be copied to servers as-is. The last directory, `templates`,
-contains Jinja2 templates that need to be rendered before getting
-copied on to the server.
+There are some new directory names there. The first is
+`handlers`. These are triggers that can be registered with tasks, such
+as reloading nginx configuration or restarting a service when it's
+redeployed. The files that contain the tasks and handlers should be
+named `main.yml`, meaning that you will end up with twice as many
+`main.yml` files as you have roles, which honestly sucks. The third
+directory, `files`, is for storing any files that have to be copied to
+servers as-is. The `templates` directory contains Jinja2 templates
+that need to be rendered before getting copied on to the server.
 
 Let's move the tasks above that installed packages into a role called
 `packages`, and use it in a playbook. You can find the playbook and
-the roles in the directory `example/part2`. The directory tree becomes
-rather convoluted even for the simplest role-based organization, but
-again, this is how Ansible rolls. Here is how
-`roles/packages/tasks/main.yml` looks:
+the roles in the directory `example/part2`. As you can see, the
+directory tree becomes rather convoluted even for the simplest
+role-based organization, but again, this is how Ansible rolls. Here is
+how `roles/packages/tasks/main.yml` looks:
+
+```yml
+- name: Update apt cache
+  sudo: true
+  apt: update_cache=yes
+
+- name: Ensure all required locales are present
+  locale_gen: name="en_US.UTF-8" state=present
+
+- name: set locale to UTF-8
+  sudo: true
+  command: /usr/sbin/update-locale LANG="en_US.UTF-8" LC_ALL="en_US.UTF-8" LANGUAGE="en_US.UTF-8"
+
+- name: Install required packages
+  sudo: true
+  apt: pkg={{ item }}
+  with_items:
+    - nginx
+    - postgresql
+    - python-psycopg2 #also required by ansible
+    - git
+    - python-virtualenv
+    - python-dev
+    - postgresql-server-dev-9.1
+```
+
+This role, which installs standard software a Python web application,
+is relatively straightforward. There are no variations among different
+servers or applatications. We can include this role in a playbook by
+listing it among the `roles` attribute of a play. Here's the
+`site.yml` playbook which does this:
+
+```yml
+- hosts: server
+  vars:
+    home_dir: /home/admini/
+    db_password: test
+    db_name: "facetweet"
+    debug: False
+    base_url: "http://facetweet"
+    secret_key: "blahblah"
+  roles:
+    - packages
+    - db
+    - code
+    - build
+```
+
+## Handlers
+
+Restart db
+
+## Variables
