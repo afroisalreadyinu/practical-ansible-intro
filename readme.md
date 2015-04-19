@@ -1,8 +1,12 @@
 # A Practical Guide to Ansible
 
 Why another Ansible guide? Because Ansible is a great tool, but the
-existing tutorials overcomplicate the matters, and I need a better way
-to learn it.
+existing tutorials overcomplicate the matters. While trying to pick up
+Ansible for provisioning servers for various side projects, I ran into
+a number of issues that were not covered to sufficient detail by other
+online tutorials. The aim of this tutorial is to serve as a roadmap to
+programmers who want to be productive in Ansible quickly, avoiding
+certain pitfalls.
 
 ## What is Ansible?
 
@@ -448,14 +452,14 @@ how `roles/packages/tasks/main.yml` looks:
 
 This role, which installs the usual Debian packagese a Python web
 application needs, is relatively straightforward, with the exception
-of a loop. The `with_items` option enables looping a task over a list,
-and replacing `{{ item }}` with the elements of that list. This is
-equivalent to repeating the task with the list elements. The double
-curly braces is the syntax used by Jinja2 for inserting variables. You
-can use similar variable substitution pretty much anywhere in Ansible,
-but the more advanced uses of Jinja2 is restricted to actual
-templates. Only variable substitution is allowed in role and play
-definitions.
+of a loop in the last task. The `with_items` option enables looping a
+task over a list, and replacing `{{ item }}` with the elements of that
+list. This is equivalent to repeating the task with the list
+elements. The double curly braces is the syntax used by Jinja2 for
+inserting variables. You can use similar variable substitution pretty
+much anywhere in Ansible, but the more advanced uses of Jinja2 is
+restricted to actual templates. In role and play definitions, only
+variable substitution is allowed.
 
 We can include the above role in a playbook by listing it among the
 `roles` attribute of a play. Here's the section in the `site.yml`
