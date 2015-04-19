@@ -1,0 +1,10 @@
+- name: Postgres access
+  copy: src=pg_hba.conf dest=/etc/postgresql/9.1/main/pg_hba.conf owner=postgres backup=yes
+  sudo: yes
+  notify:
+    - restart postgres
+
+- name: Create admini Postgres user
+  sudo: yes
+  sudo_user: postgres
+  postgresql_user: name=admini password={{ db_password }} role_attr_flags=CREATEDB
