@@ -25,19 +25,18 @@ states](http://docs.ansible.com/playbooks_intro.html#tasks-list), "if
 you run them again, they will make only the changes they must in order
 to bring the system to the desired state."
 
-## How the fuck do I install it?
+## How do I install it?
 
-Read their [fucking
+If you are a Python developer and have virtualenv installed, it's as
+easy as `pip install ansible`. Otherwise, refer to the [official
 documentation](http://docs.ansible.com/intro_installation.html).
 
-## How the fuck do I run it?
+## How do I run it?
 
 Ansible works over SSH, so principally, you only need a computer which
 you can acces over SSH. Ansible prefers authentication using private
-keys instead of passwords, due to security and ease of use. If you
-don't know whether you have an SSH key, just fucking google it.
-
-In terms of on which computer to test, you have three options:
+keys instead of passwords, due to security and ease of use.  In terms
+of on which computer to test, you have three options:
 
 * VM
 
