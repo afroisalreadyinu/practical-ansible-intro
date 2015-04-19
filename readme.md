@@ -446,30 +446,73 @@ how `roles/packages/tasks/main.yml` looks:
     - postgresql-server-dev-9.1
 ```
 
-This role, which installs standard software a Python web application,
-is relatively straightforward. There are no variations among different
-servers or applatications. We can include this role in a playbook by
-listing it among the `roles` attribute of a play. Here's the
-`site.yml` playbook which does this:
+This role, which installs the usual Debian packagese a Python web
+application needs, is relatively straightforward, with the exception
+of a loop. The `with_items` option enables looping a task over a list,
+and replacing `{{ item }}` with the elements of that list. This is
+equivalent to repeating the task with the list elements. The double
+curly braces is the syntax used by Jinja2 for inserting variables. You
+can use similar variable substitution pretty much anywhere in Ansible,
+but the more advanced uses of Jinja2 is restricted to actual
+templates. Only variable substitution is allowed in role and play
+definitions.
+
+We can include the above role in a playbook by listing it among the
+`roles` attribute of a play. Here's the section in the `site.yml`
+playbook where this happens:
 
 ```yml
 - hosts: server
   vars:
-    home_dir: /home/admini/
     db_password: test
-    db_name: "facetweet"
-    debug: False
-    base_url: "http://facetweet"
-    secret_key: "blahblah"
   roles:
     - packages
     - db
-    - code
-    - build
 ```
+
+`site.yml` playbook consists of two plays. A play is a combination of
+hosts, roles, variables, and other configuration options such as
+`remote_user` or `sudo`.
 
 ## Handlers
 
-Restart db
+The `db` role does two things: copy an alternative Postgres
+authentication configuration file (`pg_hba.conf`) onto the server,
+creating a time-stamped backup if it differs, and adding a new admini
+user. The first of these two actions requires a restart of the
+Postgres server. We could add this as a manual step after the
+configuration file is copied over, but a better idea is to have a
+handler that is triggered whenever an action requiring a restart of
+the Postgres server is executed. Such triggers go into the
+`handlers/main.yml` file in a role directory, and should have a format
+as follows:
+
+```yml
+- name: restart postgres
+  sudo: yes
+  service: name=postgresql state=restarted
+```
+
+This handler can then be referenced from a role in the `notify` field:
+
+```yml
+- name: Postgres access
+  copy: src=pg_hba.conf dest=/etc/postgresql/9.1/main/pg_hba.conf owner=postgres backup=yes
+  sudo: yes
+  notify:
+    - restart postgres
+```
+
+A nice feature of handlers is that they will be triggered once in a
+single play. That is, if you change a configuration multiple times,
+the service will be restarted only once, at the end of the play, and
+not with each configuration change.
 
 ## Variables
+
+Variables in Ansible are what you would expect: can be defined in many
+different ways, such as:
+
+- In the inventory
+- In a play
+- As arguments to included tasks and roles
