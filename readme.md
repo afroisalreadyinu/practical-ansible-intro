@@ -15,12 +15,11 @@ want to repeat regularly. Its strenghts are:
 
 * And most importantly: *It's idempotent*.
 
-So, what is idempotent? It means that Ansible is sort-of, kind-of
-clever enough to figure out that whatever crap you ask it to do, is
-actually not necessary, since nothing would change. So you want to
-copy a file from one place to another?  No need to do so, it's already
-there. Start some processes? They are already running, nothing to do,
-move on.
+Idempotency is a property of Ansible playbooks. As [the official
+documentation
+states](http://docs.ansible.com/playbooks_intro.html#tasks-list), "if
+you run them again, they will make only the changes they must in order
+to bring the system to the desired state."
 
 ## How the fuck do I install it?
 
