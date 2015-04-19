@@ -1,5 +1,13 @@
 - hosts: server
   vars:
+    db_password: test
+  roles:
+    - packages
+    - db
+
+- hosts: server
+  vars:
+    app_name: facetweet
     home_dir: /home/admini/
     db_password: test
     debug: False
@@ -7,7 +15,5 @@
     base_url: "blah"
     secret_key: "blahblah"
   roles:
-    - packages
-    - db
     - code
     - build
