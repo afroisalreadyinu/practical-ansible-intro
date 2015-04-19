@@ -296,10 +296,11 @@ changed: [server] => {"changed": true, "cmd": ["whoami"], "delta": "0:00:00.0029
 # a little more bla bla
 ```
 
-So the `remote_user` instruction works; we are in fact `admini` on the
-server. But what if we wanted to run a command that requires sudo? In
-that case, we simply add the `sudo: true` option, with the playbook
-now looking like this:
+This input will be a bit more bowine if you have the `cowsay` command
+installed. So the `remote_user` instruction works; we are in fact
+`admini` on the server. But what if we wanted to run a command that
+requires sudo? In that case, we simply add the `sudo: true` option,
+with the playbook now looking like this:
 
 ```yml
 - hosts: server
