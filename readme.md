@@ -28,57 +28,48 @@ to bring the system to the desired state."
 ## How do I install it?
 
 If you are a Python developer and have virtualenv installed, it's as
-easy as `pip install ansible`. Otherwise, refer to the [official
+simple as `pip install ansible`. Otherwise, refer to the [official
 documentation](http://docs.ansible.com/intro_installation.html).
 
 ## How do I run it?
 
-Ansible works over SSH, so principally, you only need a computer which
-you can acces over SSH. Ansible prefers authentication using private
-keys instead of passwords, due to security and ease of use.  In terms
-of on which computer to test, you have three options:
+Ansible works over SSH, and does not require any special software
+installed on the remote server. Principally, therefore, you only need
+a computer which you can acces over SSH. The prefered method of
+authentication is using private keys instead of passwords, due to
+security and ease of use. The collection of servers on which an
+Ansible playbook should run is specified in what is called the
+**inventory**. The inventory lists the names of the computers together
+with connection information such as SSH port and IP address. If you
+already have a server to which you can SSH as root, here is what you
+should put into a file named `inventory`:
 
-* VM
+    server ansible_ssh_host=IP_ADRESS
 
-* DigitalOcean
-
-* Some other crappy server you've put in a dingy colocation room
-  somewhere, that's this close to giving its soul up, but you want to
-  torture it one last time.
-
-The recommended option is DigitalOcean. It's cheap, fast and
-foolproof. Don't be a cheapass, get your credit card out and skip to
-the [relevant section](#digitalocean).
-
-Depending on which option you choose, the inventory file, the file
-which tells Ansible how to reach a computer, is going to be a bit
-different. These will be explained.
+Since we will be modifying the system quite a bit, you are recommended
+to use a server you can create and destroy at will. The easiest way to
+do this is to use a VM, either locally or from a provider.  Depending
+on which option you choose, the inventory file, the file which tells
+Ansible how to reach a computer, is going to be a bit different. These
+will be explained.
 
 ### VM
 
-Fucking virtualization. Isn't it awesome that you can run a computer
-in your fucking computer (xzibit.jpg), and go ape wild on it? Like
-`sudo rm -rf /*` wild? It's not like the VM is running on your
-computer; obviously, the memory and processing power are provided by
-the VM fairies from the heavens. So let's put fucking *everything*
-in VMs, the computer won't get slower when our crappy code runs in
-them anyway.
-
-If you still insist on a VM, at least use Vagrant. It makes shit
-easy. [Install it](https://www.vagrantup.com/) and start the default
-Ubuntu machine with `vagrant init hashicorp/precise32`. SSH into it
-with `vagrant ssh`, do an `ls` or whatever silly command you can think
-of to make sure it's working. All right, that was the easy part. Now
-you have to copy your actual SSH key into this VM. Assuming that the
-key you want to copy is in `/Path/to/your/id_rsa.pub`, run the
-following command:
+The easiest way to create and manage VMs locally is using
+Vagrant. [Install it](https://www.vagrantup.com/) and start the
+default Ubuntu machine with `vagrant init hashicorp/precise32`. SSH
+into it with `vagrant ssh`, do an `ls` to make sure everything is
+working. All right, that was the easy part. Now you have to copy your
+actual SSH key into this VM. Assuming that the key you want to copy is
+in `/Path/to/your/id_rsa.pub`, run the following command:
 
     scp -P 2222  /Path/to/your/id_rsa.pub vagrant@127.0.0.1:/tmp
 
-If you are prompted for a password, enter `vagrant`. Now SSH into the
-machine again with `vagrant ssh` from within the directory where it
-was created, and run the following commands in order add your key to
-the root account's authorized keys:
+If you are prompted for a password, enter `vagrant`, the default
+password for the default Vagrant box. Now SSH into the machine again
+with `vagrant ssh` from within the directory where it was created, and
+run the following commands in order to add your key to the root
+account's authorized keys:
 
     sudo su
     mkdir -p -m 700 /root/.ssh
@@ -89,22 +80,20 @@ Now you should be able to SSH from anywhere on the host computer into
 the VM as root. The default Vagrant box comes with the user `vagrant`
 that has sudo rights, and one could run most of the commands we will
 use for demo purposes with that user. The aim of adding the root user
-is to make the following examples uniform.
+is to make the examples uniform.
 
-Last but not least here is how the inventory file should look like:
+Last but not least here is what the contents of the inventory file
+should be:
 
     server ansible_ssh_port=2222 ansible_ssh_host=127.0.0.1
 
 ### <a name="digitalocean"></a>DigitalOcean
 
-I've got no snarky comments to make about these guys. Their shit just
-works. Kudos to them. One thing you have to do to use DigitalOcean is
-to create an ssh key.  Go create a fucking account
-[here](https://www.digitalocean.com/). The easiest way to create a
-"droplet" is to use their web interface. If you do so, don't forget to
-add your SSH key. It's the last box at the bottom of the form before
-the "Create Droplet" button. Just copy the contents of
-`~/.ssh/id_rsa.pub` or wherever you have your SSH key and paste in there.
+The easiest way to create a DigitalOcean "droplet" is to use their web
+interface. If you do so, don't forget to add your SSH key. It's the
+last box at the bottom of the form before the "Create Droplet"
+button. Just copy the contents of `~/.ssh/id_rsa.pub` or wherever you
+have your SSH key and paste it in there.
 
 In case you want to create and remove droplets liberally, and if you
 are among the chosen few who can get a Python script with dependencies
@@ -113,17 +102,6 @@ and delete new DigitalOcean droplets. This script will create the
 droplet with your SSH key already included, which will save you one
 more step.
 
-### Ancient computer somewhere
-
-The only thing you need is an SSH key with which you can log in to the
-remote computer, and the IP address of the computer. In this case, the
-inventory file will look like the following:
-
-    server ansible_ssh_host=A.B.C.D ansible_ssh_user=username
-
-where `A.B.C.D` is the IP addres, and `username` is the remote
-username.
-
 ### Ping it
 
 Once you have your test server set up, run the following command to
@@ -131,8 +109,8 @@ check whether everything is working:
 
     ansible -i inventory server -m ping
 
-As a response, you should see the following, anything else means you
-fucked up:
+As a response, you should see the following, anything else means
+something went wrong:
 
     server | success >> {
         "changed": false,
