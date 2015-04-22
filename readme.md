@@ -102,6 +102,18 @@ and delete new DigitalOcean droplets. This script will create the
 droplet with your SSH key already included, which will save you one
 more step.
 
+
+### Failing connection on server change
+
+A confusing situation that frequently occurs when you recreate a local
+VM, or wipe a server clean without changing its IP address, is that
+Ansible (or simply SSH, for that matter) fails to connect, because the
+fingerprint of the server changed. This issue is easy to
+alleviate. Open the file `~/.ssh/known_hosts`, find the line that
+starts with the IP address you are trying to connect to (and possibly
+also contains the port, if it's non-default, in the
+`[IP_ADDRESS]:PORT` format), and delete it.
+
 ### Ping it
 
 Once you have your test server set up, run the following command to
