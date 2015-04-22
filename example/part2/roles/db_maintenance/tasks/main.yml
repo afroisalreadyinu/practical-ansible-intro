@@ -1,0 +1,11 @@
+- name: Dump {{ app }} database
+  command: pg_dump
+  tag: backup_db
+
+- name: Copy {{ app }} database backup
+  copy: src=ll dest=ss
+  tag: restore_db
+
+- name: Restore {{ app }} database from backup
+  command: pg_restore
+  tag: restore_db
