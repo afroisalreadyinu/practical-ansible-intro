@@ -1,3 +1,4 @@
 flask
 psycopg2
 Flask-SQLAlchemy
+gunicorn
