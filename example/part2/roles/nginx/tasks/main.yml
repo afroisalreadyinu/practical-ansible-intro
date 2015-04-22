@@ -1,0 +1,15 @@
+- name: Deactivate default nginx site
+  sudo: yes
+  file: dest=/etc/nginx/sites-enabled/default state=absent
+
+- name: Copy {{ app }} config
+  sudo: yes
+  template: src=nginx.conf.j2 dest=/etc/nginx/sites-available/{{ app_name }}
+
+- name: Activate {{ app }} config
+  sudo: yes
+  file: src=/etc/nginx/sites-available/{{ app_name }} dest=/etc/nginx/sites-enabled/{{ app_name }} state=link
+
+- name: Reload nginx config
+  sudo: yes
+  service: name=nginx state=reloaded
