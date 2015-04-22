@@ -415,7 +415,7 @@ named `main.yml`, meaning that you will end up with twice as many
 `main.yml` files as you have roles, which honestly sucks. The third
 directory, `files`, is for storing any files that have to be copied to
 servers as-is. The `templates` directory contains Jinja2 templates
-that need to be rendered before getting copied on to the server.
+that can be rendered and copied to a server.
 
 Let's move the tasks above that installed packages into a role called
 `packages`, and use it in a playbook. You can find the playbook and
@@ -455,10 +455,7 @@ of a loop in the last task. The `with_items` option enables looping a
 task over a list, and replacing `{{ item }}` with the elements of that
 list. This is equivalent to repeating the task with the list
 elements. The double curly braces is the syntax used by Jinja2 for
-inserting variables. You can use similar variable substitution pretty
-much anywhere in Ansible, but the more advanced uses of Jinja2 is
-restricted to actual templates. In role and play definitions, only
-variable substitution is allowed.
+inserting variables; more on this later.
 
 We can include the above role in a playbook by listing it among the
 `roles` attribute of a play. Here's the section in the `site.yml`
@@ -479,16 +476,16 @@ hosts, roles, variables, and other configuration options such as
 
 ## Handlers
 
-The `db` role does two things: copy an alternative Postgres
-authentication configuration file (`pg_hba.conf`) onto the server,
-creating a time-stamped backup if it differs, and adding a new admini
-user. The first of these two actions requires a restart of the
-Postgres server. We could add this as a manual step after the
-configuration file is copied over, but a better idea is to have a
-handler that is triggered whenever an action requiring a restart of
-the Postgres server is executed. Such triggers go into the
-`handlers/main.yml` file in a role directory, and should have a format
-as follows:
+Let's move on to the second role in the above play. The `db` role does
+two things: copy an alternative Postgres authentication configuration
+file (`pg_hba.conf`) onto the server, creating a time-stamped backup
+if it differs, and adding a new admini user. The first of these two
+actions requires a restart of the Postgres server. We could add this
+as a manual step after the configuration file is copied over, but a
+better idea is to have a handler that is triggered whenever an action
+requiring a restart of the Postgres server is executed. Such triggers
+go into the `handlers/main.yml` file in a role directory, and should
+have the following format:
 
 ```yml
 - name: restart postgres
@@ -513,9 +510,48 @@ not with each configuration change.
 
 ## Variables
 
-Variables in Ansible are what you would expect: can be defined in many
-different ways, such as:
+The second play in `site.yml` looks like this:
+
+```yml
+- hosts: server
+  vars:
+    app_name: facetweet
+    home_dir: /home/admini/
+    db_password: test
+    debug: False
+    database_uri: "dburi"
+    base_url: "blah"
+    secret_key: "blahblah"
+  roles:
+    - code
+    - build
+```
+
+Variables in Ansible are what you would expect: placeholders for
+values that might change according to circumstances. Using values is
+relatively straightforward; you can use them pretty much anywere by
+wrapping the variable's name in double curly braces, such as the loop
+that used `item` as a value above. This syntax for variable
+substitution, taken over from Jinja, can be used pretty much anywhere
+in Ansible, but the more advanced uses of Jinja2 is restricted to
+actual templates. In role and play definitions, only variable
+substitution is allowed; it is not possile to use other Jinja2
+features such as conditionals or looping.
+
+Values for variables can be defined through the following mechanisms:
 
 - In the inventory
 - In a play
 - As arguments to included tasks and roles
+- From the command line
+- Registered from a task
+- Facts gathered by Ansible
+
+For precedence, see [the official documentation](http://docs.ansible.com/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable).
+
+TODO
+- the thing with quoting lines that start with curly braces
+- the thing with vars in task names
+- vault
+- local tasks with /etc/hosts or /private/etc/hosts on mac
+- different playbooks, such as looping with different apps to deploy whole thing, or splitting into deploy and provision
