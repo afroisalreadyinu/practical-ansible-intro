@@ -1,0 +1,18 @@
+description "{{ app_name }}"
+start on runlevel [2345]
+stop on runlevel [016]
+
+respawn
+
+script
+    LOGFILE={{ log_directory }}/guni.log
+    NUM_WORKERS={{ num_workers }}
+    # user/group to run as
+    USER={{ app_process_user }}
+    GROUP={{ app_process_user }}
+    APP_CONFIG={{ app_config }} exec {{ venv }}/bin/gunicorn {{ wsgi_app }} -w $NUM_WORKERS \
+        --user=$USER --group=$GROUP --log-level={{ log_level }} \
+        --log-file=$LOGFILE 2>>$LOGFILE \
+        --pid={{ code_dir }}guni.pid \
+        --bind '127.0.0.1:{{ bind_port }}'
+end script

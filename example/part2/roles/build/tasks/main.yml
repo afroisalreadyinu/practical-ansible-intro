@@ -1,11 +1,44 @@
 - name: Create venv directory
-  file: path="{{ home_dir }}venvs" state=directory
+  file: path={{ venv_base_dir }} state=directory
 
-- name: Install facetweet
-  pip: requirements="{{ home_dir }}code/example/websites/facetweet/requirements.txt" virtualenv="{{ home_dir }}venvs/facetweet"
+- name: Install {{ app }} dependencies
+  pip: requirements="{{ code_dir }}requirements.txt" virtualenv={{ venv }}
+
+- name: Install {{ app }}
+  command: '{{ venv }}/bin/python setup.py develop'
+  args:
+    chdir: "{{ code_dir }}"
+
+- name: Create log directory
+  sudo: yes
+  file: dest={{ log_directory }} state=directory owner={{ app_process_user }}
+
+- name: Copy {{ app }} production config
+  template: src=config.cfg.j2 dest="{{ app_config }}"
+
+- name: Create {{ app }} db
+  postgresql_db: name={{ db_name }} encoding='UTF-8' owner=admini login_user=admini login_password={{ db_password }}
+  register: db_created
+
+- name: Populate fresh db
+  command: "{{ venv }}/bin/createdb"
+  environment:
+    APP_CONFIG: "{{ code_dir }}production_config.cfg"
+  when: db_created|changed
+
+- name: "{{ app }} upstart config"
+  sudo: yes
+  template: src=upstart.conf.j2 dest="/etc/init/{{ app_name }}.conf"
+
+- name: Start {{ app }} service
+  sudo: yes
+  service: name="{{ app_name }}" state=started
+
 
 # TODO
 
-# - Create demo web projects in example
-# - Database creation with tags
-# - Add tasks to create upstart configs for these
+# - task to dump db
+# - task to restore db
+
+# MAYBE
+# - local task to simulate host
