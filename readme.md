@@ -129,39 +129,39 @@ something went wrong:
         "ping": "pong"
     }
 
-You're right, this is too much stuff for a simple ping. The
-stand-alone `ansible` command is rarely used, though; it is mostly for
-the purpose of testing individual modules. The above ping command does
-the following: Use the inventory passed with the `-i` argument to run
-the module passed with the `-m` argument. You're thinking "WTF is a
-module", just be patient for another fucking minute, OK? The ping
-module does not need any arguments, but if it did, it would have been
-possible to pass them with another switch. But as mentioned, we are
-interested in more complicated stuff and not a shitty replacement for
-`ssh -c`, so read on for plays, roles, and more.
+You're right, the above command is too much stuff for a simple
+ping. The stand-alone `ansible` command is rarely used, though; it is
+mostly for the purpose of testing individual modules. The above ping
+command does the following: Use the inventory passed with the `-i`
+argument to run the module passed with the `-m` argument. You're
+thinking "WTF is a module", just be patient for another minute, OK?
+The ping module does not need any arguments, but if it did, it would
+have been possible to pass them with another switch. But as mentioned,
+we are interested in more complicated stuff and not a crappy
+replacement for `ssh -c`, so read on for plays, roles, and more.
 
 ## Plays, Modules, etc
 
 There are only four fundamental concepts necessary for grokking
 Ansible; if you understand these, you're halfway there. To make it as
-simple as possible, here is a plaing fucking list:
+simple as possible, here is a plain list:
 
 * **Modules** are units of action. For pretty much everything you
     would do on a server, there is a module. They can be built-in or
     add-ons. Examples are ping, copy/modify/delete file, install
     packages, start/stop/restart a service etc.
 
-* **Inventory** is the specification of a set of servers. Ansible
-    provides very convenient ways to specify sets of servers, and
-    aliases for these.
+* **Inventory** is the specification of a set of servers and how to
+    connect to them. Ansible provides very convenient ways to specify
+    sets of servers, and aliases for these.
 
-* **Roles** are collections of actions that serve a purpose, like
-    installing, configuring and then starting a database server, or
-    retrieving code, building it, moving it to servers and runing it.
+* **Roles** are collections of actions that serve a purpose, and data
+    that belongs to these actions. Examples are, installing,
+    configuring and then starting a database server, or retrieving
+    code, building it, moving it to servers and runing it.
 
-* **Playbooks** are collections of actions to run on a cluster of
-    servers. Plays also contain data to make sure that the pieces fit
-    together.
+* **Playbooks** are collections of roles to run on a cluster of
+    servers, completed with more data.
 
 So in effect, **roles are collections of module applications, and
 playbooks are specifications of which roles should be matched to which
@@ -175,9 +175,9 @@ language". What kind of retarded bullshit technical writing is this?
 Playbooks are not the fucking language, they are what you write in the
 fucking language. Can't they pay for a fucking technical writer? Or
 even an editor? Or just some sane person with a fucking highschool
-degree who can proofread their shit? For fucks sake.
+degree who can proofread this shit? For fucks sake.
 
-### Writing plays & roles
+## Writing plays & roles
 
 OK, let's get going. The example I want to cover here is the average
 case of an RDBMS-driven website running on Python. What do we need on
@@ -210,8 +210,8 @@ Here is how a concise playbook that achieves this looks like:
 
 You're probably asking yourself about the format. It's YAML, yet
 another markup language. The good things about it: it's neither XML
-nor JSON. The bad thing: It's a fucking markup language, and sometimes
-you have to bend over backwards to get what the crappiest programming
+nor JSON. The bad thing: It's a markup language, and sometimes you
+have to bend over backwards to get what the crappiest programming
 language would get done in two lines of code. That's the way Ansible
 rolls, so you'll have to deal with it. In this simple example, we are
 listing the tasks within the playbook, which should be OK for a small
@@ -222,8 +222,7 @@ description, and a specification on the next line. The specification
 starts with the name of a module, and continues with parameters as
 fields. [This list of all available ansible
 modules](http://docs.ansible.com/list_of_all_modules.html) should
-leave no doubts that pretty much every need can be served out of the
-box.
+leave no doubts that nearly every need can be served out of the box.
 
 In order to run the above playbook, save it in a file named
 `playbook_simple.yml` next to the inventory. Or just navigate to the
@@ -243,9 +242,11 @@ on a fresh server:
     PLAY RECAP **********************************************************
     server           : ok=5    changed=4    unreachable=0    failed=0
 
-Among the 4 tasks we had in our playbook, all have been executed, and
-led to changes in the system, thus the entry `changed=4`. If we run
-the same playbook once more, however, here is what we see:
+This output will look a bit more bowine if you have the `cowsay`
+command installed, by the way. Among the 4 tasks we had in our
+playbook, all have been executed, and led to changes in the system,
+thus the entry `changed=4`. If we run the same playbook once more,
+however, here is what we see:
 
     PLAY RECAP ************************************************************
     server             : ok=5    changed=0    unreachable=0    failed=0
@@ -258,12 +259,12 @@ already run it.
 
 ## Who is Ansible on my server?
 
-One thing that is relatively confusing with Ansible is who the fuck
-you actually are on a server. There are a number of different configs,
-command line switches, and playbook options that have an effect on the
-user Ansible runs commands as. Here is a tiny playbook that we will
-use to print the Ansible user (can be found in
-`examples/part1/whoami.yml`):
+One thing that is relatively confusing with Ansible is who the hell
+you actually are on a server. There are a number of different
+configuration options, command line switches, and playbook options
+that have an effect on the user Ansible runs the actions under. Here
+is a tiny playbook that we will use to print the Ansible user (can be
+found in `examples/part1/whoami.yml`):
 
 ```yml
 - hosts: server
@@ -289,16 +290,15 @@ changed: [server] => {"changed": true, "cmd": ["whoami"], "delta": "0:00:00.0029
 # a little more bla bla
 ```
 
-This input will be a bit more bowine if you have the `cowsay` command
-installed. So the `remote_user` instruction works; we are in fact
-`admini` on the server. But what if we wanted to run a command that
-requires sudo? In that case, we simply add the `sudo: true` option,
-with the playbook now looking like this:
+So the `remote_user` instruction works; we are in fact `admini` on the
+server. But what if we wanted to run a command that requires sudo? In
+that case, we simply add the `sudo: yes` option, with the playbook
+now looking like this:
 
 ```yml
 - hosts: server
   remote_user: admini
-  sudo: true
+  sudo: yes
   tasks:
     - name: Print the actual user
       command: whoami
@@ -340,6 +340,12 @@ That is, specification in the inventory overrides everything else,
 whereas the default value in `ansible.cfg` is, as the name implies,
 only a default.
 
+**Aside on specifying booleans**: You can specify boolean values for
+  tasks and plays using pretty much any truey or falsy value, all of
+  these work: `yes, no, True, true, TRUE, false`. In this tutorial
+  `yes` and `no` are preferred, because that's what I see in other
+  playbooks most frequently.
+
 ## Roles
 
 Now that we have the basics covered, let's actually start provisioning
@@ -373,9 +379,9 @@ our code, and do stuff with it. It would be rather messy if we
 continued adding more tasks into this play, however, not to mention
 how we organize the configuration files and templates that will come
 up later. Therefore, let's take the step mentioned earlier and
-separate out our playbooks into roles. A role gathers tasks that are
-conceptually coherent, and bundles them with some other things like
-data and triggers. Roles reside in the `roles` directory next to
+separate out our playbooks into roles. A **role** gathers tasks that
+are conceptually coherent, and bundles them with some other things
+like data and triggers. Roles reside in the `roles` directory next to
 playbooks, and have the following file structure:
 
 ```yml
@@ -537,11 +543,18 @@ Values for variables can be defined through the following mechanisms:
 - Registered from a task
 - Facts gathered by Ansible
 
-For precedence, see [the official documentation](http://docs.ansible.com/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable).
+For precedence, see [the official
+documentation](http://docs.ansible.com/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable).
+
+## Vault
+
+Vault is the built-in mechanism offered by Ansible for encoding files
+that contain sensitive data such as passwords. It is extremely easy to
+use, as witnessed by the [brevity of the official
+documentation](http://docs.ansible.com/playbooks_vault.html).
 
 TODO
 - the thing with quoting lines that start with curly braces
 - the thing with vars in task names
-- vault
 - local tasks with /etc/hosts or /private/etc/hosts on mac
 - different playbooks, such as looping with different apps to deploy whole thing, or splitting into deploy and provision
