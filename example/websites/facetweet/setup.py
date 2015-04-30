@@ -4,7 +4,7 @@ setup(
     name = "facetweet",
     version = "0.01",
     author = "afroisalreadyinu",
-    install_requires = ["flask",'Flask-SQLAlchemy'],
+    install_requires = ["flask",'Flask-SQLAlchemy', 'passlib'],
     packages=find_packages(),
     zip_safe=False,
     entry_points = {'console_scripts':

@@ -1,4 +1,5 @@
 flask
 psycopg2
 Flask-SQLAlchemy
+passlib
 gunicorn

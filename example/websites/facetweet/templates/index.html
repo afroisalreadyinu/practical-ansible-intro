@@ -1,18 +1,66 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<html ng-app="facetweet">
   <head><title>FaceTweet</title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8">
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+    <link href="/static/main.css" rel="stylesheet">
   </head>
-  <body>
-    <h1>FaceTweet</h1>
-    <div ng-controller="facetweet">
-      <h2>Links</h2>
-      <ul>
-        {% for link in links %}
-        <li>{{ link }}</li>
-        {% endfor %}
-      </ul>
+  <body ng-controller="RootCtrl as root_ctrl">
+
+    {% raw %}
+      <div class="container"
+           ng-show="!root_ctrl.logged_in">
+
+        <form class="form-signin"
+              name="signin_form"
+              ng-submit="root_ctrl.signin()">
+          <h2 class="form-signin-heading">Sign In</h2>
+          <input type="email"
+                 class="form-control"
+                 placeholder="Email address"
+                 ng-model="root_ctrl.signin_data.email" required autofocus>
+          <input type="password"
+                 class="form-control"
+                 placeholder="Password"
+                 ng-model="root_ctrl.signin_data.password" required>
+          <button
+             class="btn btn-lg btn-primary btn-block"
+             type="submit">Sign in</button>
+        </form>
+
+        <form class="form-signin"
+              name="signup_form"
+            ng-submit="root_ctrl.signup()">
+          <h2 class="form-signin-heading">Sign Up</h2>
+          <input type="email"
+                 class="form-control"
+                 placeholder="Email address"
+                 ng-model="root_ctrl.signup_data.email" required autofocus>
+          <input type="password"
+                 class="form-control"
+                 placeholder="Password"
+                 ng-model="root_ctrl.signup_data.password" required>
+          <button class="btn btn-lg btn-primary btn-block"
+                  type="submit">Sign up</button>
+        </form>
+      </div>
+
+    <div class="container"
+         ng-show="root_ctrl.logged_in">
+      <h1>FaceTweet</h1>
+      <div ng-controller="MainCtrl as ctrl">
+
+        <h2>Posts</h2>
+        <div ng-repeat="post in ctrl.posts">
+          {{ post }}
+        </div>
+      </div>
     </div>
+
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+    <script src="/static/index.js"></script>
+    {% endraw %}
+    <script>
+      var user_email = {{ email|tojson|safe }};
+    </script>
   </body>
