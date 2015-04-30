@@ -28,7 +28,8 @@ to bring the system to the desired state."
 ## How do I install it?
 
 If you are a Python developer and have virtualenv installed, it's as
-simple as `pip install ansible`. Otherwise, refer to the [official
+simple as creating a virtualenv and then running `pip install ansible`
+inside it. Otherwise, refer to the [official
 documentation](http://docs.ansible.com/intro_installation.html).
 
 ## How do I run it?
@@ -538,6 +539,7 @@ Values for variables can be defined through the following mechanisms:
 
 - In the inventory
 - In a play
+- As separate `.yml` files
 - As arguments to included tasks and roles
 - From the command line
 - Registered from a task
