@@ -522,23 +522,23 @@ Values for variables can be defined through the following
 mechanisms. In the following, we will go through these, and go into
 detail where necessary.
 
-#### In the inventory
+##### In the inventory
 
 Variables declared in the `var_name=var_value` format on inventory
 elements are available in the tasks that run on these elements. An
 example is the `ansible_ssh_host` and `ansible_port` we used above.
 
-#### In a play
+##### In a play
 
 Variables can be defined in the `vars` section of a play, and can then
 be used in any tasks that are part of that play.
 
-#### As separate YML files
+##### As separate YML files
 
 It is possible to include arbitrary yaml files with variable
 definitions using the `include_vars` module in a play.
 
-#### As arguments to included tasks and roles
+##### As arguments to included tasks and roles
 
 It is possible to pass arguments to included tasks and roles in
 playbooks. We will not consider task includes here, since roles are a
@@ -554,14 +554,17 @@ following syntax:
     - { role: db, password: 'notapassword' }
 ```
 
-- **From the command line**: You can use the command line switches
-    `--extra-vars` or `-e`, followed by a comma-separated list of
-    variables in `var_name=var_value` format. These variables have the
-    highest precedence.
+##### From the command line
 
-- **Registered from a task**: This very useful feature allows you to
-    store the result of a task in a variable and use it in following
-    tasks. Here is a toy example of a playbook that does this:
+You can use the command line switches `--extra-vars` or `-e`, followed
+by a comma-separated list of variables in `var_name=var_value`
+format. These variables have the highest precedence.
+
+##### Registered from a task
+
+This very useful feature allows you to store the result of a task in a
+variable and use it in following tasks. Here is a toy example of a
+playbook that does this:
 
 ```yml
 - hosts: server
@@ -575,23 +578,25 @@ following syntax:
       command: echo {{ whatisit }}
 ```
 
-    The output of the first task (a random number) will be saved in
-    the variable `whatisit`, and then printed by the second task. You
-    have to run the above playbook, which you can find in
-    `examples/part2/save_var.yml`, with higher verbosity to see the
-    output of the second task:
+The output of the first task (a random number) will be saved in the
+variable `whatisit`, and then printed by the second task. You have to
+run the above playbook, which you can find in
+`examples/part2/save_var.yml`, with higher verbosity to see the output
+of the second task:
 
     ansible-playbook -i inventory part2/save_var.yml -vv
 
-    The output of the second task might be a but surprising; it's a
-    dictionary with various bits of information on the first
-    task. Among the useful entries are `changed`, which points to
-    whether any changes happened, and `rc` which stands for return
-    code. You can use these variables to steer following tasks by
-    referring to them using dot syntax, such as `{{ whatisit.changed
-    }}`.
+The output of the second task might be a but surprising; it's a
+dictionary with various bits of information on the first task. Among
+the useful entries are `changed`, which points to whether any changes
+happened, and `rc` which stands for return code. You can use these
+variables to steer following tasks by referring to them using dot
+syntax, such as `{{ whatisit.changed }}`.
 
-- **Facts gathered by Ansible**:
+##### Facts gathered by Ansible
+
+Ansible gathers a ton of information on the hosts on which it runs for
+its own use. This information is made available in the playbooks too.
 
 For precedence, see [the official
 documentation](http://docs.ansible.com/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable).
