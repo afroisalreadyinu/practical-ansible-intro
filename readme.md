@@ -606,6 +606,45 @@ always, since it's a command.
 Ansible gathers a ton of information on the hosts on which it runs for
 its own use. This information is made available in the playbooks, too.
 
+##### Hostvars and groupvars
+
+These offer one of the most versatile means of supplying variables in
+Ansible.
+
+In the example project we are building, we would like to have the
+ability to deploy different web applications, preferably by supplying
+the name of the project on the command line instead of editing a
+file. This can be achieved by using command line variables. Loading
+the correct variables can be done by including the
+application-specific variables in separate files and loading these
+based on the name of the application. This is how it is done in
+`examples/part2/site.yml`, the playbook that brings together the roles
+we worked on in the previous section. Here is the first play from that
+file:
+
+```yml
+- hosts: server
+  pre_tasks:
+    - name: Load variables
+      include_vars: "vars/{{ app }}"
+    - name: Load passwords
+      include_vars: "vars/passwords.yml"
+  roles:
+    - packages
+    - db
+```
+
+We are using the `include_vars` module here to load the file that
+contains the variables belonging to the application specified by
+`app`. The same module is also used to load the `passwords.yml` file
+that contains the database password. This file is encrypted; dealing
+with passwords in encrypted files will be explained in the next
+section. What's peculiar in this play is the use of `pre_tasks`. In a
+play, the order of execution is first roles and then tasks. The tasks
+listed in `pre_tasks`, on the other hand, are executed before the
+roles. In this case, the variables loaded through the `include_vars`
+calls in `pre_tasks` make the variables in those files available to
+the rest of not only this play, but the rest of the playbook.
 
 ## Vault
 
