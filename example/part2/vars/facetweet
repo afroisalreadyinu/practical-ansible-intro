@@ -1,0 +1,19 @@
+home_dir: /home/admini/
+code_dir: "{{ home_dir }}code/example/websites/facetweet/"
+venv_base_dir: "{{ home_dir }}venvs/"
+venv: "{{ venv_base_dir }}facetweet"
+app_name: facetweet
+app_url: "facetweet.com"
+app_config: "{{ code_dir }}production_config.cfg"
+app_static_dir: "{{ code_dir }}static/"
+db_user: admini
+db_name: facetweet
+num_workers: 2
+app_process_user: admini
+log_directory: /var/log/facetweet
+wsgi_app: "facetweet:app"
+log_level: INFO
+bind_port: 8001
+secret_key: blahblah
+debug: False
+base_url: facetweet.com
