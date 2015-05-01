@@ -1,0 +1,9 @@
+- hosts: server
+  tasks:
+
+    - name: Task one
+      command: shuf -i1-100 -n1
+      register: whatisit
+
+    - name: Task two
+      command: echo {{ whatisit }}
