@@ -7,3 +7,7 @@
 
     - name: Task two
       command: echo {{ whatisit }}
+
+    - name: Task three
+      command: echo "blah"
+      when: whatisit.changed

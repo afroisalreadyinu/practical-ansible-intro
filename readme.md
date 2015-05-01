@@ -520,7 +520,9 @@ features such as conditionals or looping.
 
 Values for variables can be defined through the following
 mechanisms. In the following, we will go through these, and go into
-detail where necessary.
+detail where necessary. For precedence of these different ways of
+defining variables, see [the official
+documentation](http://docs.ansible.com/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable).
 
 ##### In the inventory
 
@@ -576,6 +578,10 @@ playbook that does this:
 
     - name: Task two
       command: echo {{ whatisit }}
+
+    - name: Task three
+      command: echo "blah"
+      when: whatisit.changed
 ```
 
 The output of the first task (a random number) will be saved in the
@@ -591,15 +597,14 @@ dictionary with various bits of information on the first task. Among
 the useful entries are `changed`, which points to whether any changes
 happened, and `rc` which stands for return code. You can use these
 variables to steer following tasks by referring to them using dot
-syntax, such as `{{ whatisit.changed }}`.
+syntax, such as `whatisit.changed`. This is what happens in the third
+task above, which is run only when the first task has changed, that is
+always, since it's a command.
 
 ##### Facts gathered by Ansible
 
 Ansible gathers a ton of information on the hosts on which it runs for
-its own use. This information is made available in the playbooks too.
-
-For precedence, see [the official
-documentation](http://docs.ansible.com/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable).
+its own use. This information is made available in the playbooks, too.
 
 
 ## Vault
