@@ -30,7 +30,7 @@
 
         <form class="form-signin"
               name="signup_form"
-            ng-submit="root_ctrl.signup()">
+              ng-submit="root_ctrl.signup()">
           <h2 class="form-signin-heading">Sign Up</h2>
           <input type="email"
                  class="form-control"
@@ -50,9 +50,22 @@
       <h1>FaceTweet</h1>
       <div ng-controller="MainCtrl as ctrl">
 
+
+          <form name="new-post"
+                ng-submit="ctrl.new_post()"
+                class="col-md-4">
+            <h2 class="form-signin-heading">New status update</h2>
+            <textarea class="form-control"
+                      rows="6"
+                      ng-model="ctrl.new_post_text" required>
+            </textarea>
+            <button class="btn btn-lg btn-primary btn-block"
+                    type="submit">New status</button>
+          </form>
+
         <h2>Posts</h2>
         <div ng-repeat="post in ctrl.posts">
-          {{ post }}
+          {{ post.text }}: on {{ post.added }}
         </div>
       </div>
     </div>

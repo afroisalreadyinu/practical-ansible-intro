@@ -29,6 +29,21 @@ angular.module('facetweet', [])
       };
 
     }])
-  .controller('MainCtrl', [function() {
-    this.posts = ["haha", "hehe"];
+  .controller('MainCtrl', ["$http", function($http) {
+    var self = this;
+    $http.get("/posts/").then(function(response) {
+      self.posts = response.data.posts;
+    });
+    self.new_post = function() {
+      $http({
+        url: "/post/",
+        method: "POST",
+        data: JSON.stringify({"text":self.new_post_text}),
+        headers: {'Content-Type': 'application/json'}
+      }).then(function(response) {
+        $http.get("/posts/").then(function(response) {
+          self.posts = response.data.posts;
+        });
+      });
+    };
   }]);

@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from functools import wraps
 
 from flask import (Flask,
                    render_template,
@@ -23,20 +24,43 @@ app.config.from_envvar("APP_CONFIG")
 db = SQLAlchemy(app)
 
 class User(db.Model):
+    __tablename__ = 'user'
     email = db.Column(db.String(), primary_key=True)
     pw_hash = db.Column(db.String(), nullable=False)
 
 class Post(db.Model):
+    __tablename__ = 'post'
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(), nullable=True)
     added = db.Column(db.DateTime(), default=datetime.now)
     user_email = db.Column(db.String, db.ForeignKey('user.email'))
 
+    def to_dict(self):
+        return {"text": self.text,
+                "added": self.added.strftime("%m.%d.%Y %H:%M")}
+
+
+def logged_in(handler):
+    @wraps(handler)
+    def replacement(*args, **kwargs):
+        email = session.get('email')
+        if not email:
+            abort(401)
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            abort(401)
+        return handler(user, *args, **kwargs)
+    return replacement
 
 
 @app.route("/")
 def index():
     email = session.get('email')
+    if email:
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            session.pop('email')
+            email = None
     return render_template('index.html', email=email)
 
 @app.route("/signup/", methods=["POST"])
@@ -53,9 +77,8 @@ def signup():
 @app.route("/login/", methods=["POST"])
 def login():
     data = request.get_json()
-    pw_hash = custom_app_context.encrypt(data['password'])
     user = User.query.filter_by(email=data['email']).one()
-    if user.pw_hash == pw_hash:
+    if custom_app_context.verify(data['password'], user.pw_hash):
         session['email'] = user.email
         return jsonify({"email":user.email})
     return jsonify({"status":"error"})
@@ -65,15 +88,20 @@ def logout():
     session.pop("email")
     return jsonify({"status": "logged_out"})
 
-@app.route("/links/")
-def links():
-    links = Post.query.all()
-    resp = dict(posts=[dict(text="blah")])
-    return jsonify(resp)
+@app.route("/posts/")
+@logged_in
+def list_posts(user):
+    posts = Post.query.order_by(Post.added.desc()).all()
+    return jsonify({'posts':[p.to_dict() for p in posts]})
 
-@app.route("/")
-def add_link():
-    pass
+@app.route("/post/", methods=["POST"])
+@logged_in
+def create_post(user):
+    data = request.get_json()
+    post = Post(text=data['text'], user_email=user.email)
+    db.session.add(post)
+    db.session.commit()
+    return jsonify({"status": "OK"})
 
 def run():
     app.debug = True
