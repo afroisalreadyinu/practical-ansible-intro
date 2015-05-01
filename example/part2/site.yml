@@ -1,19 +1,15 @@
 - hosts: server
-  vars:
-    db_password: test
+  pre_tasks:
+    - name: Load variables
+      include_vars: "vars/{{ app }}"
+    - name: Load passwords
+      include_vars: "vars/passwords.yml"
   roles:
     - packages
     - db
 
 - hosts: server
-  vars:
-    app_name: facetweet
-    home_dir: /home/admini/
-    db_password: test
-    debug: False
-    database_uri: "dburi"
-    base_url: "blah"
-    secret_key: "blahblah"
   roles:
     - code
     - build
+    - nginx

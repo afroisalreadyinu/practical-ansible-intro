@@ -507,23 +507,6 @@ not with each configuration change.
 
 ## Variables
 
-The second play in `site.yml` looks like this:
-
-```yml
-- hosts: server
-  vars:
-    app_name: facetweet
-    home_dir: /home/admini/
-    db_password: test
-    debug: False
-    database_uri: "dburi"
-    base_url: "blah"
-    secret_key: "blahblah"
-  roles:
-    - code
-    - build
-```
-
 Variables in Ansible are what you would expect: placeholders for
 values that might change according to circumstances. Using values is
 relatively straightforward; you can use them pretty much anywere by
@@ -537,16 +520,30 @@ features such as conditionals or looping.
 
 Values for variables can be defined through the following mechanisms:
 
-- In the inventory
-- In a play
-- As separate `.yml` files
-- As arguments to included tasks and roles
-- From the command line
-- Registered from a task
-- Facts gathered by Ansible
+- **In the inventory**: Variables declared in the `var_name=var_value`
+    format on inventory elements are available in the tasks that run
+    on these elements. An example is the `ansible_ssh_host` and
+    `ansible_port` we used above.
+
+- **In a play**: Variables can be defined in the `vars` section of a
+    play, and can then be used in any tasks that are part of that
+    play.
+
+- **As separate `.yml` files**: It is possible to include arbitrary
+    yaml files with variable definitions using the `include_vars`
+    module in a play.
+
+- **As arguments to included tasks and roles**
+
+- **From the command line**
+
+- **Registered from a task**
+
+- **Facts gathered by Ansible**
 
 For precedence, see [the official
 documentation](http://docs.ansible.com/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable).
+
 
 ## Vault
 
