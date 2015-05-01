@@ -533,11 +533,27 @@ Values for variables can be defined through the following mechanisms:
     yaml files with variable definitions using the `include_vars`
     module in a play.
 
-- **As arguments to included tasks and roles**
+- **As arguments to included tasks and roles**: It is possible to pass
+    arguments to included tasks and roles in playbooks. We will not
+    consider task includes here, since roles are a better alternative,
+    but you can [refer to the
+    documentation](http://docs.ansible.com/playbooks_roles.html#task-include-files-and-encouraging-reuse)
+    if you feel like it. Passing arguments to roles works with the following syntax:
 
-- **From the command line**
+```yml
+- hosts: server
+  roles:
+    - packages
+    - { role: db, password: 'notapassword' }
+```
 
-- **Registered from a task**
+- **From the command line**: You can use the command line switches
+    `--extra-vars` or `-e`, followed by a comma-separated list of
+    variables in `var_name=var_value` format.
+
+- **Registered from a task**: This very useful feature allows you to
+    store the result of a task in a variable and use it in following
+    tasks.
 
 - **Facts gathered by Ansible**
 
@@ -550,7 +566,16 @@ documentation](http://docs.ansible.com/playbooks_variables.html#variable-precede
 Vault is the built-in mechanism offered by Ansible for encoding files
 that contain sensitive data such as passwords. It is extremely easy to
 use, as witnessed by the [brevity of the official
-documentation](http://docs.ansible.com/playbooks_vault.html).
+documentation](http://docs.ansible.com/playbooks_vault.html). You can
+create an encoded file that contains variables using the following
+command:
+
+    ansible-vault create password.yml
+
+You will be prompted for password that will be used to encode the
+file, and then dropped into the editor specified by the `EDITOR`
+environment variable (most probably vi or vim if you didn't set it
+somewhere).
 
 TODO
 - the thing with quoting lines that start with curly braces
