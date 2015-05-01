@@ -575,7 +575,13 @@ command:
 You will be prompted for password that will be used to encode the
 file, and then dropped into the editor specified by the `EDITOR`
 environment variable (most probably vi or vim if you didn't set it
-somewhere).
+somewhere). You can edit or rekey (i.e. change the password for) this
+file using command of the same name, or encrypt existing files. The
+really useful functionality is running playbooks that refer to
+encrypted files without having to decrypt them first. To do this, you
+have to pass the argument `--ask-vault-pass` to `ansible-playbook`,
+which will take care of the rest.
+
 
 TODO
 - the thing with quoting lines that start with curly braces
