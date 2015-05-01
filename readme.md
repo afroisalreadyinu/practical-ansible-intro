@@ -518,27 +518,34 @@ actual templates. In role and play definitions, only variable
 substitution is allowed; it is not possile to use other Jinja2
 features such as conditionals or looping.
 
-Values for variables can be defined through the following mechanisms:
+Values for variables can be defined through the following
+mechanisms. In the following, we will go through these, and go into
+detail where necessary.
 
-- **In the inventory**: Variables declared in the `var_name=var_value`
-    format on inventory elements are available in the tasks that run
-    on these elements. An example is the `ansible_ssh_host` and
-    `ansible_port` we used above.
+#### In the inventory
 
-- **In a play**: Variables can be defined in the `vars` section of a
-    play, and can then be used in any tasks that are part of that
-    play.
+Variables declared in the `var_name=var_value` format on inventory
+elements are available in the tasks that run on these elements. An
+example is the `ansible_ssh_host` and `ansible_port` we used above.
 
-- **As separate `.yml` files**: It is possible to include arbitrary
-    yaml files with variable definitions using the `include_vars`
-    module in a play.
+#### In a play
 
-- **As arguments to included tasks and roles**: It is possible to pass
-    arguments to included tasks and roles in playbooks. We will not
-    consider task includes here, since roles are a better alternative,
-    but you can [refer to the
-    documentation](http://docs.ansible.com/playbooks_roles.html#task-include-files-and-encouraging-reuse)
-    if you feel like it. Passing arguments to roles works with the following syntax:
+Variables can be defined in the `vars` section of a play, and can then
+be used in any tasks that are part of that play.
+
+#### As separate YML files
+
+It is possible to include arbitrary yaml files with variable
+definitions using the `include_vars` module in a play.
+
+#### As arguments to included tasks and roles
+
+It is possible to pass arguments to included tasks and roles in
+playbooks. We will not consider task includes here, since roles are a
+better alternative, but you can [refer to the
+documentation](http://docs.ansible.com/playbooks_roles.html#task-include-files-and-encouraging-reuse)
+if you feel like it. Passing arguments to roles works with the
+following syntax:
 
 ```yml
 - hosts: server
@@ -584,7 +591,7 @@ Values for variables can be defined through the following mechanisms:
     referring to them using dot syntax, such as `{{ whatisit.changed
     }}`.
 
-- **Facts gathered by Ansible**
+- **Facts gathered by Ansible**:
 
 For precedence, see [the official
 documentation](http://docs.ansible.com/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable).
