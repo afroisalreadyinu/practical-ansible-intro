@@ -51,9 +51,10 @@
       <div ng-controller="MainCtrl as ctrl">
 
 
+        <div class="col-md-4">
+
           <form name="new-post"
-                ng-submit="ctrl.new_post()"
-                class="col-md-4">
+                ng-submit="ctrl.new_post()">
             <h2 class="form-signin-heading">New status update</h2>
             <textarea class="form-control"
                       rows="6"
@@ -63,9 +64,27 @@
                     type="submit">New status</button>
           </form>
 
-        <h2>Posts</h2>
-        <div ng-repeat="post in ctrl.posts">
-          {{ post.text }}: on {{ post.added }}
+          <form name="new-friend"
+                ng-submit="ctrl.befriend()">
+            <h2 class="form-signin-heading">Add new friend</h2>
+            <input type="email"
+                   class="form-control"
+                   placeholder="Email"
+                   ng-model="ctrl.new_friend_email" required>
+            <button class="btn btn-lg btn-primary btn-block"
+                    type="submit">Add friend</button>
+          </form>
+          <h2>Friends</h2>
+          <ul>
+            <li ng-repeat="friend in ctrl.friends">{{ friend }}</li>
+          </ul>
+        </div>
+
+        <div class="col-md-8">
+          <h2>Posts</h2>
+          <div ng-repeat="post in ctrl.posts">
+            {{ post.text }} <small>on {{ post.added }} by {{ post.email }}</small>
+          </div>
         </div>
       </div>
     </div>

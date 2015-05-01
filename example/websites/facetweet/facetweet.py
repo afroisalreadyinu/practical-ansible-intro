@@ -28,6 +28,14 @@ class User(db.Model):
     email = db.Column(db.String(), primary_key=True)
     pw_hash = db.Column(db.String(), nullable=False)
 
+class Friendship(db.Model):
+    __tablename__ = 'friendship'
+    __table_args__ = (
+        db.PrimaryKeyConstraint('left', 'right'),
+    )
+    left = db.Column(db.String, db.ForeignKey('user.email'))
+    right = db.Column(db.String, db.ForeignKey('user.email'))
+
 class Post(db.Model):
     __tablename__ = 'post'
     id = db.Column(db.Integer, primary_key=True)
@@ -37,7 +45,8 @@ class Post(db.Model):
 
     def to_dict(self):
         return {"text": self.text,
-                "added": self.added.strftime("%m.%d.%Y %H:%M")}
+                "added": self.added.strftime("%m.%d.%Y %H:%M"),
+                "email": self.user_email}
 
 
 def logged_in(handler):
@@ -70,6 +79,8 @@ def signup():
     user = User(email=data['email'],
                 pw_hash=pw_hash)
     db.session.add(user)
+    self_friend = Friendship(left=user.email, right=user.email)
+    db.session.add(self_friend)
     db.session.commit()
     session['email'] = user.email
     return jsonify({"email":user.email})
@@ -91,7 +102,13 @@ def logout():
 @app.route("/posts/")
 @logged_in
 def list_posts(user):
-    posts = Post.query.order_by(Post.added.desc()).all()
+    posts = (
+        Post.query.join(
+            Friendship,
+            Post.user_email==Friendship.right
+        ).filter(
+            Friendship.left==user.email
+        ).order_by(Post.added.desc()).all())
     return jsonify({'posts':[p.to_dict() for p in posts]})
 
 @app.route("/post/", methods=["POST"])
@@ -100,6 +117,22 @@ def create_post(user):
     data = request.get_json()
     post = Post(text=data['text'], user_email=user.email)
     db.session.add(post)
+    db.session.commit()
+    return jsonify({"status": "OK"})
+
+@app.route("/friends/", methods=["GET"])
+@logged_in
+def friends(user):
+    friends = Friendship.query.filter_by(left=user.email)
+    return jsonify({"friends": [f.right for f in friends
+                                if f.right != user.email]})
+
+@app.route("/befriend/", methods=["POST"])
+@logged_in
+def befriend(user):
+    data = request.get_json()
+    friendship = Friendship(left=user.email, right=data['email'])
+    db.session.add(friendship)
     db.session.commit()
     return jsonify({"status": "OK"})
 

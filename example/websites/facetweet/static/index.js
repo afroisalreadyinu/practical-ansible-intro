@@ -34,6 +34,9 @@ angular.module('facetweet', [])
     $http.get("/posts/").then(function(response) {
       self.posts = response.data.posts;
     });
+    $http.get("/friends/").then(function(response) {
+      self.friends = response.data.friends;
+    });
     self.new_post = function() {
       $http({
         url: "/post/",
@@ -41,6 +44,24 @@ angular.module('facetweet', [])
         data: JSON.stringify({"text":self.new_post_text}),
         headers: {'Content-Type': 'application/json'}
       }).then(function(response) {
+        self.new_post_text = "";
+        $http.get("/posts/").then(function(response) {
+          self.posts = response.data.posts;
+        });
+      });
+    };
+
+    self.befriend = function() {
+      $http({
+        url: "/befriend/",
+        method: "POST",
+        data: JSON.stringify({"email": self.new_friend_email}),
+        headers: {'Content-Type': 'application/json'}
+      }).then(function(response) {
+        self.new_friend_email = "";
+        $http.get("/friends/").then(function(response) {
+          self.friends = response.data.friends;
+        });
         $http.get("/posts/").then(function(response) {
           self.posts = response.data.posts;
         });
