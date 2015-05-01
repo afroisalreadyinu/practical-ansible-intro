@@ -549,11 +549,40 @@ Values for variables can be defined through the following mechanisms:
 
 - **From the command line**: You can use the command line switches
     `--extra-vars` or `-e`, followed by a comma-separated list of
-    variables in `var_name=var_value` format.
+    variables in `var_name=var_value` format. These variables have the
+    highest precedence.
 
 - **Registered from a task**: This very useful feature allows you to
     store the result of a task in a variable and use it in following
-    tasks.
+    tasks. Here is a toy example of a playbook that does this:
+
+```yml
+- hosts: server
+  tasks:
+
+    - name: Task one
+      command: shuf -i1-100 -n1
+      register: whatisit
+
+    - name: Task two
+      command: echo {{ whatisit }}
+```
+
+    The output of the first task (a random number) will be saved in
+    the variable `whatisit`, and then printed by the second task. You
+    have to run the above playbook, which you can find in
+    `examples/part2/save_var.yml`, with higher verbosity to see the
+    output of the second task:
+
+    ansible-playbook -i inventory part2/save_var.yml -vv
+
+    The output of the second task might be a but surprising; it's a
+    dictionary with various bits of information on the first
+    task. Among the useful entries are `changed`, which points to
+    whether any changes happened, and `rc` which stands for return
+    code. You can use these variables to steer following tasks by
+    referring to them using dot syntax, such as `{{ whatisit.changed
+    }}`.
 
 - **Facts gathered by Ansible**
 
