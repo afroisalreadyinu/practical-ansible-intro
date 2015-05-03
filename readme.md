@@ -452,58 +452,7 @@ of a loop in the last task. The `with_items` option enables looping a
 task over a list, and replacing `{{ item }}` with the elements of that
 list. This is equivalent to repeating the task with the list
 elements. The double curly braces is the syntax used by Jinja2 for
-inserting variables; more on this later.
-
-We can include the above role in a playbook by listing it among the
-`roles` attribute of a play. Here's the section in the `site.yml`
-playbook where this happens:
-
-```yml
-- hosts: server
-  vars:
-    db_password: test
-  roles:
-    - packages
-    - db
-```
-
-`site.yml` playbook consists of two plays. A play is a combination of
-hosts, roles, variables, and other configuration options such as
-`remote_user` or `sudo`.
-
-## Handlers
-
-Let's move on to the second role in the above play. The `db` role does
-two things: copy an alternative Postgres authentication configuration
-file (`pg_hba.conf`) onto the server, creating a time-stamped backup
-if it differs, and adding a new admini user. The first of these two
-actions requires a restart of the Postgres server. We could add this
-as a manual step after the configuration file is copied over, but a
-better idea is to have a handler that is triggered whenever an action
-requiring a restart of the Postgres server is executed. Such triggers
-go into the `handlers/main.yml` file in a role directory, and should
-have the following format:
-
-```yml
-- name: restart postgres
-  sudo: yes
-  service: name=postgresql state=restarted
-```
-
-This handler can then be referenced from a role in the `notify` field:
-
-```yml
-- name: Postgres access
-  copy: src=pg_hba.conf dest=/etc/postgresql/9.1/main/pg_hba.conf owner=postgres backup=yes
-  sudo: yes
-  notify:
-    - restart postgres
-```
-
-A nice feature of handlers is that they will be triggered once in a
-single play. That is, if you change a configuration multiple times,
-the service will be restarted only once, at the end of the play, and
-not with each configuration change.
+inserting variables, which we will discuss now.
 
 ## Variables
 
@@ -618,15 +567,12 @@ file. This can be achieved by using command line variables. Loading
 the correct variables can be done by including the
 application-specific variables in separate files and loading these
 based on the name of the application. This is how it is done in
-`examples/part2/site.yml`, the playbook that brings together the roles
-we worked on in the previous section. Here is the first play from that
-file:
+`examples/part2/deploy_app.yml`, a playbook that builds and runs a
+single web application. Here is the first play from that file:
 
 ```yml
 - hosts: server
   pre_tasks:
-    - name: Load variables
-      include_vars: "vars/{{ app }}"
     - name: Load passwords
       include_vars: "vars/passwords.yml"
   roles:
@@ -645,6 +591,40 @@ listed in `pre_tasks`, on the other hand, are executed before the
 roles. In this case, the variables loaded through the `include_vars`
 calls in `pre_tasks` make the variables in those files available to
 the rest of not only this play, but the rest of the playbook.
+
+## Handlers
+
+Let's move on to the second role in the above play. The `db` role does
+two things: copy an alternative Postgres authentication configuration
+file (`pg_hba.conf`) onto the server, creating a time-stamped backup
+if it differs, and adding a new admini user. The first of these two
+actions requires a restart of the Postgres server. We could add this
+as a manual step after the configuration file is copied over, but a
+better idea is to have a handler that is triggered whenever an action
+requiring a restart of the Postgres server is executed. Such triggers
+go into the `handlers/main.yml` file in a role directory, and should
+have the following format:
+
+```yml
+- name: restart postgres
+  sudo: yes
+  service: name=postgresql state=restarted
+```
+
+This handler can then be referenced from a role in the `notify` field:
+
+```yml
+- name: Postgres access
+  copy: src=pg_hba.conf dest=/etc/postgresql/9.1/main/pg_hba.conf owner=postgres backup=yes
+  sudo: yes
+  notify:
+    - restart postgres
+```
+
+A nice feature of handlers is that they will be triggered once in a
+single play. That is, if you change a configuration multiple times,
+the service will be restarted only once, at the end of the play, and
+not with each configuration change.
 
 ## Vault
 
