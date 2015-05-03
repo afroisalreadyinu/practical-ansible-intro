@@ -558,7 +558,7 @@ its own use. This information is made available in the playbooks, too.
 ##### Hostvars and groupvars
 
 These offer one of the most versatile means of supplying variables in
-Ansible.
+Ansible. [TBD]
 
 In the example project we are building, we would like to have the
 ability to deploy different web applications, preferably by supplying
@@ -661,11 +661,42 @@ have to pass the argument `--ask-vault-pass` to `ansible-playbook`,
 which will take care of the rest. The password for the `passwords.yml`
 included in the examples is `testtest`, by the way.
 
-## Useful Ansible modules
+## Tasks & Modules
+
+Ansible has a lot of built-in modules, covering every step of our goal
+in this tutorial, deploying a Python web application. The roles in the
+second play of `deploy_app.yml`, namely `code`, `build` and `nginx`
+use these modules combined with a number of other techniques. We will
+look into these now.
+
+The `code` role is only responsible for checking out the code for the
+demo websites from Github; there are two tasks in
+`code/tasks/main.yml` that achieve this. The first makes sure that the
+github.com domain key is in the `known_hosts` file of the Ansible user
+using the `lineinfile` module. This module will make sure that a line
+is there or not, depending on the `state` argument. If the `regexp`
+argument is also provided, it will be used to find the line that
+should be replaced in case of `state=present`, or removed for
+`state=absent`. This task uses two other features. The first is the
+use of `ansible_ssh_user` in the path specification for the
+`known_hosts` file; this variable is one of those provided by Ansible
+itself. The other is the use of the **lookup** plugin. This plugin
+enables reading data from the local system, either by piping the
+result of a command, as in this case, or by reading a file. By looking
+up the github.com key locally, and copying it onto the target server,
+we can be sure that we're using the right key, and can securely clone
+the repo. The second task in `code/tasks/main.yml` uses the `git`
+module, and is relatively straightforward: It makes sure that the repo
+is cloned, and by default updates to head of master. The `lookup`
+module is used again, to get the remote origin of this repo, to avoid
+harcoding it.
+
+
+### Tags
 
 TBD
 
-## Lookup
+## Combining roles, plays and playbooks
 
 TBD
 
