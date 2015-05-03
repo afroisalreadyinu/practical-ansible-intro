@@ -315,10 +315,10 @@ changed: [server] => {"changed": true, "cmd": ["whoami"], "delta": "0:00:00.0019
 The default user which Ansible sudo's as is, understandably,
 root. This can be changed, though, with the `sudo_user` instruction.
 
-Supplying the user to connect as in each and every playbook can be
-cumbersome and error-prone if you have many of them, so Ansible offers
-an easy way to set a default for all playbooks in a directory, by
-creating an `ansible.cfg` file and putting the following in there:
+Supplying the user in each and every playbook can be cumbersome and
+error-prone if you have many of them, so Ansible offers an easy way to
+set a default for all playbooks in a directory, by creating an
+`ansible.cfg` file and putting the following in there:
 
 ```
 [defaults]
@@ -342,7 +342,7 @@ whereas the default value in `ansible.cfg` is, as the name implies,
 only a default.
 
 **Aside on specifying booleans**: You can specify boolean values for
-  tasks and plays using pretty much any truey or falsy value, all of
+  tasks and plays using pretty much any truey or falsy value; all of
   these work: `yes, no, True, true, TRUE, false`. In this tutorial
   `yes` and `no` are preferred, because that's what I see in other
   playbooks most frequently.
@@ -374,11 +374,11 @@ playbook that does all of these
         - git
 ```
 
-Alright, we have ourselves a web and a database server, and the tools
-to check out our code. Now we need to go ahead and actually check out
-our code, and do stuff with it. It would be rather messy if we
-continued adding more tasks into this play, however, not to mention
-how we organize the configuration files and templates that will come
+With this playbook, we would get a web and a database server, and the
+tools to check out our code; the following tasks would involve
+checking out our code, and installing it. It would be rather messy if
+we continued adding more tasks into this play, however, not to mention
+the organization of configuration files and templates that will come
 up later. Therefore, let's take the step mentioned earlier and
 separate out our playbooks into roles. A **role** gathers tasks that
 are conceptually coherent, and bundles them with some other things
@@ -414,12 +414,12 @@ directory, `files`, is for storing any files that have to be copied to
 servers as-is. The `templates` directory contains Jinja2 templates
 that can be rendered and copied to a server.
 
-Let's move the tasks above that installed packages into a role called
-`packages`, and use it in a playbook. You can find the playbook and
-the roles in the directory `example/part2`. As you can see, the
-directory tree becomes rather convoluted even for the simplest
-role-based organization, but again, this is how Ansible rolls. Here is
-how `roles/packages/tasks/main.yml` looks:
+Let's move the tasks from the playbook that installed packages into a
+role called `packages`, and use it in a new playbook. You can find the
+playbook and the roles in the directory `example/part2`. As you can
+see, the directory tree becomes rather convoluted even for the
+simplest role-based organization, but again, this is how Ansible
+rolls. Here is how `roles/packages/tasks/main.yml` looks:
 
 ```yml
 - name: Update apt cache
@@ -446,7 +446,7 @@ how `roles/packages/tasks/main.yml` looks:
     - postgresql-server-dev-9.1
 ```
 
-This role, which installs the usual Debian packagese a Python web
+This role, which installs the usual Debian packages a Python web
 application needs, is relatively straightforward, with the exception
 of a loop in the last task. The `with_items` option enables looping a
 task over a list, and replacing `{{ item }}` with the elements of that
