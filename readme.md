@@ -596,13 +596,17 @@ encrypted; dealing with passwords in encrypted files will be explained
 in the next section. The second playbook loads the file that contains
 the variables belonging to the application specified by `app`. As you
 can see in this second `include_vars`, variables can be subsituted in
-many places where you would need them. What's peculiar in this playbook
-is the use of `pre_tasks`. In a play, the order of execution is first
-roles and then tasks. The tasks listed in `pre_tasks`, on the other
-hand, are executed before the roles. In this case, the variables
+many places where you would need them. What's peculiar in this
+playbook is the use of `pre_tasks`. In a play, the order of execution
+is first roles and then tasks. The tasks listed in `pre_tasks`, on the
+other hand, are executed before the roles. In this case, the variables
 loaded through the `include_vars` calls in `pre_tasks` make the
 variables in those files available to the rest of not only this play,
-but the rest of the playbook.
+but the rest of the playbook. Assuming that we want to deploy the
+application facetweet from the `examples/websites` directory, here is
+how the Ansible command would look like:
+
+    ansible-playbook -i inventory part2/deploy_app.yml -e "app=facetweet" --ask-vault-pass
 
 ## Handlers
 
@@ -716,6 +720,36 @@ venv: "{{ venv_base_dir }}facetweet"
 This is a really useful feature that allows one to create complicated
 configuration files without repetition.
 
+After installing the dependencies and the application, the `build`
+role creates the application configuration using the `template`
+module. This module can render Jinja2 templates using all the
+variables that are provided with the different methods listed
+above. In this case, the application configuration is generated using
+mostly the variables in the loaded `vars/{{ app }}` file. The same
+module is also used to create the upstart configuration file.
+
+Next comes th creation of a database for the app using the
+`postgresql_db`. The database name is looked up from the vars file,
+while the password is looked up from the encoded passwords file. The
+result of this task is registered in the variable `db_created` to
+check whether it was changed in the next task. If it changed, i.e. if
+a new database was created, the command from the web application to
+create the tables from the SQLAlchemy schema is called. The aptly
+named `command` module is run to call this command. The option
+`environment` is used set values in the environment in which the
+command is run, passing the configuration file generated earlier as
+`APP_CONFIG` to be used by application code.
+
+Once all these tasks have been started with the command mentioned
+above and run to completion, the web application can be accessed on
+the server. If you deployed to a VM with Vagrant, add the following
+line to the Vagrantfile to match port 80 of the guest to port 8001 on
+your host machine, and run `vagrant reload` to restart the VM:
+
+    config.vm.network "forwarded_port", guest: 80, host: 8001
+
+Afterwrds, the application you deployed (one of facetweet or hackerit)
+should be available on http://localhost:8001.
 
 ### Tags
 
