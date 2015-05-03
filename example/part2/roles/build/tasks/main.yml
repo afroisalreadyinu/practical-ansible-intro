@@ -24,7 +24,7 @@
   command: "{{ venv }}/bin/createdb"
   environment:
     APP_CONFIG: "{{ code_dir }}production_config.cfg"
-  when: db_created|changed
+  when: db_created.changed
 
 - name: "{{ app }} upstart config"
   sudo: yes
