@@ -568,7 +568,7 @@ the correct variables can be done by including the
 application-specific variables in separate files and loading these
 based on the name of the application. This is how it is done in
 `examples/part2/deploy_app.yml`, a playbook that builds and runs a
-single web application. Here is the first play from that file:
+single web application. Here are the contents of that file:
 
 ```yml
 - hosts: server
@@ -578,32 +578,44 @@ single web application. Here is the first play from that file:
   roles:
     - packages
     - db
+
+- hosts: server
+  pre_tasks:
+    - name: Load variables
+      include_vars: "vars/{{ app }}"
+  roles:
+    - code
+    - build
+    - nginx
 ```
 
-We are using the `include_vars` module here to load the file that
-contains the variables belonging to the application specified by
-`app`. The same module is also used to load the `passwords.yml` file
-that contains the database password. This file is encrypted; dealing
-with passwords in encrypted files will be explained in the next
-section. What's peculiar in this play is the use of `pre_tasks`. In a
-play, the order of execution is first roles and then tasks. The tasks
-listed in `pre_tasks`, on the other hand, are executed before the
-roles. In this case, the variables loaded through the `include_vars`
-calls in `pre_tasks` make the variables in those files available to
-the rest of not only this play, but the rest of the playbook.
+We are using the `include_vars` module here to load variables files
+dynamically. In the first play, `include_vars` is used to load the
+`passwords.yml` file that contains the database password. This file is
+encrypted; dealing with passwords in encrypted files will be explained
+in the next section. The second playbook loads the file that contains
+the variables belonging to the application specified by `app`. As you
+can see in this second `include_vars`, variables can be subsituted in
+many places where you would need them. What's peculiar in this playbook
+is the use of `pre_tasks`. In a play, the order of execution is first
+roles and then tasks. The tasks listed in `pre_tasks`, on the other
+hand, are executed before the roles. In this case, the variables
+loaded through the `include_vars` calls in `pre_tasks` make the
+variables in those files available to the rest of not only this play,
+but the rest of the playbook.
 
 ## Handlers
 
-Let's move on to the second role in the above play. The `db` role does
-two things: copy an alternative Postgres authentication configuration
-file (`pg_hba.conf`) onto the server, creating a time-stamped backup
-if it differs, and adding a new admini user. The first of these two
-actions requires a restart of the Postgres server. We could add this
-as a manual step after the configuration file is copied over, but a
-better idea is to have a handler that is triggered whenever an action
-requiring a restart of the Postgres server is executed. Such triggers
-go into the `handlers/main.yml` file in a role directory, and should
-have the following format:
+Let's move on to the second role in the first play above. The `db`
+role does two things: copy an alternative Postgres authentication
+configuration file (`pg_hba.conf`) onto the server, creating a
+time-stamped backup if it differs, and adding a new admini user. The
+first of these two actions requires a restart of the Postgres
+server. We could add this as a manual step after the configuration
+file is copied over, but a better idea is to have a handler that is
+triggered whenever an action requiring a restart of the Postgres
+server is executed. Such triggers go into the `handlers/main.yml` file
+in a role directory, and should have the following format:
 
 ```yml
 - name: restart postgres
@@ -628,16 +640,17 @@ not with each configuration change.
 
 ## Vault
 
-Vault is the built-in mechanism offered by Ansible for encoding files
-that contain sensitive data such as passwords. It is extremely easy to
-use, as witnessed by the [brevity of the official
+The password file that is included with `include_vars` in the playbook
+`deploy_app.yml` is encoded using a built-in Ansible feature named
+Vault.  Vault is extremely easy to use, as witnessed by the [brevity
+of the official
 documentation](http://docs.ansible.com/playbooks_vault.html). You can
 create an encoded file that contains variables using the following
 command:
 
     ansible-vault create password.yml
 
-You will be prompted for password that will be used to encode the
+You will be prompted for a password that will be used to encode the
 file, and then dropped into the editor specified by the `EDITOR`
 environment variable (most probably vi or vim if you didn't set it
 somewhere). You can edit or rekey (i.e. change the password for) this
@@ -645,8 +658,16 @@ file using command of the same name, or encrypt existing files. The
 really useful functionality is running playbooks that refer to
 encrypted files without having to decrypt them first. To do this, you
 have to pass the argument `--ask-vault-pass` to `ansible-playbook`,
-which will take care of the rest.
+which will take care of the rest. The password for the `passwords.yml`
+included in the examples is `testtest`, by the way.
 
+## Useful Ansible modules
+
+TBD
+
+## Lookup
+
+TBD
 
 TODO
 - the thing with quoting lines that start with curly braces
