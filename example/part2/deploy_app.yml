@@ -1,7 +1,5 @@
 - hosts: server
   pre_tasks:
-    - name: Load variables
-      include_vars: "vars/{{ app }}"
     - name: Load passwords
       include_vars: "vars/passwords.yml"
   roles:
@@ -9,6 +7,9 @@
     - db
 
 - hosts: server
+  pre_tasks:
+    - name: Load variables
+      include_vars: "vars/{{ app }}"
   roles:
     - code
     - build
