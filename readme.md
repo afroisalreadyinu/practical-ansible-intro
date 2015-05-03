@@ -691,6 +691,31 @@ is cloned, and by default updates to head of master. The `lookup`
 module is used again, to get the remote origin of this repo, to avoid
 harcoding it.
 
+The second role, `build`, uses a number of the most frequently used
+modules to create a virtualenv, install the code, and populate the
+database. The `file` module has a lot of options, and can be used for
+various different purposes, such as removing a file, linking two
+files, changing file permissions, or creating a directory. You could
+even say it does too much, but it does the work. This module is used
+twice, to create the directory in which the virtualenvs will reside,
+and the directory for log files. The virtualenv itself is created by
+the `pip` module, which gets the path of the virtualenv as an option,
+and the name of the dependency file. The values for all these options
+come from the variables file `vars/facetweet`. If you inspect that
+file, you will see that the values are composed from each other. That
+is, a variable coming after another in a file can refer to that in its
+value, as in the following few lines:
+
+```yml
+home_dir: /home/admini/
+code_dir: "{{ home_dir }}code/example/websites/facetweet/"
+venv_base_dir: "{{ home_dir }}venvs/"
+venv: "{{ venv_base_dir }}facetweet"
+```
+
+This is a really useful feature that allows one to create complicated
+configuration files without repetition.
+
 
 ### Tags
 
