@@ -1,11 +1,38 @@
+- name: Create dumps directory
+  file: path={{ db_dumps_directory }} state=directory
+  tags:
+    - backup_db
+    - restore_db
+
+- name: Create local directory
+  file: path={{ local_backups_dir }} state=directory
+  delegate_to: localhost
+  tags: backup_db
+
+- name: Save password to .pgpass
+  template: src=pgpass.j2 dest={{ home_dir }}/.pgpass mode=0600
+  tags: backup_db
+
 - name: Dump {{ app }} database
-  command: pg_dump
-  tag: backup_db
+  shell: pg_dump -U {{ db_user }} {{ db_name }} > {{ db_dumps_directory }}/{{ app_name }}.sql
+  tags: backup_db
+
+- name: Copy database dump
+  fetch: src={{ db_dumps_directory }}/{{ app_name }}.sql dest={{local_backups_dir }}/{{ app_name }}.sql flat=yes
+  tags: backup_db
 
 - name: Copy {{ app }} database backup
-  copy: src=ll dest=ss
-  tag: restore_db
+  copy: src={{ local_backups_dir }}/{{ app_name }}.sql dest={{ db_dumps_directory }}/{{ app_name }}.sql
+  tags: restore_db
+
+- name: Remove {{ app }} database
+  postgresql_db: name={{ db_name }} state=absent login_user=admini login_password={{ db_password }}
+  tags: restore_db
+
+- name: Create {{ app }} db
+  postgresql_db: name={{ db_name }} encoding='UTF-8' owner=admini login_user=admini login_password={{ db_password }}
+  tags: restore_db
 
 - name: Restore {{ app }} database from backup
-  command: pg_restore
-  tag: restore_db
+  command: psql -d {{ db_name }} -U {{ db_user }} -f {{ db_dumps_directory }}/{{ app_name }}.sql
+  tags: restore_db

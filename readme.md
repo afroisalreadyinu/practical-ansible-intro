@@ -558,7 +558,10 @@ its own use. This information is made available in the playbooks, too.
 ##### Hostvars and groupvars
 
 These offer one of the most versatile means of supplying variables in
-Ansible. [TBD]
+Ansible. If you create the directories `host_vars` and `group_vars` in
+the same directory with a playbook, the variables in files named the
+same with inventory items for `host_vars` and groups for `group_vars`
+are available as variables. [TBD]
 
 In the example project we are building, we would like to have the
 ability to deploy different web applications, preferably by supplying
@@ -607,6 +610,8 @@ application facetweet from the `examples/websites` directory, here is
 how the Ansible command would look like:
 
     ansible-playbook -i inventory part2/deploy_app.yml -e "app=facetweet" --ask-vault-pass
+
+[TBD] all group_vars
 
 ## Handlers
 
@@ -728,7 +733,7 @@ above. In this case, the application configuration is generated using
 mostly the variables in the loaded `vars/{{ app }}` file. The same
 module is also used to create the upstart configuration file.
 
-Next comes th creation of a database for the app using the
+Next comes the creation of a database for the app using the
 `postgresql_db`. The database name is looked up from the vars file,
 while the password is looked up from the encoded passwords file. The
 result of this task is registered in the variable `db_created` to
@@ -748,12 +753,48 @@ your host machine, and run `vagrant reload` to restart the VM:
 
     config.vm.network "forwarded_port", guest: 80, host: 8001
 
-Afterwrds, the application you deployed (one of facetweet or hackerit)
-should be available on http://localhost:8001.
+Afterwards, the application you deployed (one of facetweet or
+hackerit) should be available on http://localhost:8001.
 
 ### Tags
 
-TBD
+What if you want to run tasks in a playbook or role only selectively,
+dependent on a command line option. Your Ansible playbook might
+include tasks that you want to repeat regularly and independent of the
+rest, such as changing the configuration of a service and restarting
+it, or backing up log files. Ansible offers tags for tasks to
+accomodate this use case. Task definitions accept a `tags` option, and
+the `ansible-playbook` can be given a list of tags on the command
+line. With a tag list specified, Ansible runs only those tasks that
+have one of the given tags. The playbook `examples/part2/db_tasks.yml`
+uses tags to switch between making a backup of an application database
+and restoring this backup. This playbook includes a single role that
+runs the tasks for backing up the table for the applications specified
+on the command line. The roles have either the `backup_db` or the
+`restore_db` tag, only the first task that creates the directory for
+saving dumps having both. If we wanted to dump the database for
+facetweet, for example, we would need to run the following command:
+
+    ansible-playbook -i inventory part2/db_tasks.yml -e "app=facetweet" -t restore_db --ask-vault-pass
+
+With this command, only the tasks containing the `restore_db` tasks
+from the `db_tasks.yml` playbook and `db_maintenance` role. One
+strange thing is that the `pre_tasks` jobs that we use to load
+variables and passwords also have to be tagged; otherwise, they are
+not included in tagged playbook runs. After the variables are loaded,
+the directories in which the dumps will be saved on the server and
+copied locally are created. The local directory is created with the
+`delegate_to` option, a feature that allows communication between
+hosts. Here we are using it to avoid splitting a single-task role just
+to change the host. On the server, the database is dumped into a file
+that has the same name as the app with the `pg_dump` command. For this
+task, we need to use the `shell` module, because the `command` module
+does not allow shell functionality such as piping the output of a
+command into a file. The dump is then copied into the local dumps
+directory created earlier with the `fetch` module. Restoring the
+database is the same process in reverse: Copy the file from the same
+location with `copy`, reset the application database, and then restore
+the dump.
 
 ## Combining roles, plays and playbooks
 
