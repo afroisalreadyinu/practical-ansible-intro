@@ -17,7 +17,7 @@
   template: src=config.cfg.j2 dest="{{ app_config }}"
 
 - name: Create {{ app }} db
-  postgresql_db: name={{ db_name }} encoding='UTF-8' owner=admini login_user=admini login_password={{ db_password }}
+  postgresql_db: name={{ db_name }} encoding='UTF-8' owner={{ db_user }} login_user={{ db_user }} login_password={{ db_password }}
   register: db_created
 
 - name: Populate fresh db
