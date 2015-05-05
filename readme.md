@@ -558,10 +558,27 @@ its own use. This information is made available in the playbooks, too.
 ##### Hostvars and groupvars
 
 These offer one of the most versatile means of supplying variables in
-Ansible. If you create the directories `host_vars` and `group_vars` in
-the same directory with a playbook, the variables in files named the
-same with inventory items for `host_vars` and groups for `group_vars`
-are available as variables. [TBD]
+Ansible. Hostvars are simple: You can put the variables for a single
+host named e.g. `server` in the file `host_vars/server` instead of
+cluttering the inventory. These variables will then be loaded, and
+available for tasks running on this host. Group vars are connected to
+inventory groups. You can gather individual hosts under groups in the
+inventory by prefixing them in a group name in brackets, as in the
+following sample inventory file:
+
+```
+[db_servers]
+db_server_1
+db_server_2
+```
+
+Any playbooks can then use the group name instead of individual host
+names for the `hosts` specification. The `group_vars` feature is very
+similar in this respect to the `host_vars` one: a variables file in
+the directory `group_vars/db_servers` will be available to the hosts
+in the `db_servers` group. There is one special group: `all`, in which
+all hosts are included. Consequently, the variables in the file
+`group_vars` are available on all hosts.
 
 In the example project we are building, we would like to have the
 ability to deploy different web applications, preferably by supplying
@@ -569,9 +586,10 @@ the name of the project on the command line instead of editing a
 file. This can be achieved by using command line variables. Loading
 the correct variables can be done by including the
 application-specific variables in separate files and loading these
-based on the name of the application. This is how it is done in
-`examples/part2/deploy_app.yml`, a playbook that builds and runs a
-single web application. Here are the contents of that file:
+based on the name of the application. The most basic and common
+variables would go into the `group_vars/all` file. This is how it is
+done in `examples/part2/deploy_app.yml`, a playbook that builds and
+runs a single web application. Here are the contents of that file:
 
 ```yml
 - hosts: server
@@ -610,8 +628,6 @@ application facetweet from the `examples/websites` directory, here is
 how the Ansible command would look like:
 
     ansible-playbook -i inventory part2/deploy_app.yml -e "app=facetweet" --ask-vault-pass
-
-[TBD] all group_vars
 
 ## Handlers
 
