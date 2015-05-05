@@ -1,0 +1,14 @@
+- hosts: server
+  pre_tasks:
+    - name: Load passwords
+      include_vars: "vars/passwords.yml"
+      tags:
+        - backup_db
+        - restore_db
+    - name: Load variables
+      include_vars: "vars/{{ app }}"
+      tags:
+        - backup_db
+        - restore_db
+  roles:
+    - db_maintenance
