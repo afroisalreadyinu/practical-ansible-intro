@@ -1,0 +1,17 @@
+code_dir: "{{ home_dir }}code/example/websites/hackerit/"
+venv: "{{ venv_base_dir }}facetweet"
+app_name: hackerit
+app_url: hackerit.com
+app_config: "{{ code_dir }}production_config.cfg"
+app_static_dir: "{{ code_dir }}static/"
+db_user: admini
+db_name: hackerit
+num_workers: 2
+app_process_user: admini
+log_directory: /var/log/hackerit
+wsgi_app: "hackerit:app"
+log_level: INFO
+bind_port: 8002
+secret_key: yadayada
+debug: False
+base_url: hackerit.com
