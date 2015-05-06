@@ -1,0 +1,8 @@
+- hosts: server
+  pre_tasks:
+    - name: Load variables
+      include_vars: "vars/{{ app }}"
+  roles:
+    - code
+    - build
+    - nginx

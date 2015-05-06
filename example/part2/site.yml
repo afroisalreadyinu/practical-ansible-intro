@@ -1,0 +1,8 @@
+- hosts: server
+  tasks:
+    - name: Load passwords
+      include_vars: "vars/passwords.yml"
+
+- include: provision.yml
+- include: app.yml app=facetweet
+- include: app.yml app=hackerit
