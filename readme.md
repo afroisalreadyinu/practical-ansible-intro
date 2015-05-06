@@ -814,10 +814,38 @@ the dump.
 
 ## Combining roles, plays and playbooks
 
-TBD
+What if we wanted to write a playbook that provisions a server from a
+clean install and installs both applications, restoring from a
+database in the process if the file is available? This playbook would
+not take any arguments, and would run through until both application
+processes were running and online. The include mechanism of Ansible is
+very useful in such situations where we want to create a complete
+playbook from smaller parts, achieving a certain level of
+abstraction. The play `part2/site.yml` does not contain any plays
+itself, but includes other playbooks to bring together the various
+components of the application server:
+
+```yml
+- hosts: server
+  tasks:
+    - name: Load passwords
+      include_vars: "vars/passwords.yml"
+
+- include: provision.yml
+- include: app.yml app=facetweet
+- include: app.yml app=hackerit
+```
+
+This playbook is essentially a splitting of the `deploy_app.yml`
+playbook above. The passwords are loaded now with a single task at the
+very beginning, and the roles that install the necessary packages and
+configure the database are in the playbook `provision.yml` that is
+imported into this playbook with an include directive. There is also a
+separate playbook for installing one web application, and this
+playbook is imported twice with the app variable set differently in
+each. If we were to add a new web application to our server, we would
+add it to `site.yml` along with the variables files in `vars`, and our
+deployment infrastructure would be ready to go.
 
 TODO
 - the thing with quoting lines that start with curly braces
-- the thing with vars in task names
-- local tasks with /etc/hosts or /private/etc/hosts on mac
-- different playbooks, such as looping with different apps to deploy whole thing, or splitting into deploy and provision
