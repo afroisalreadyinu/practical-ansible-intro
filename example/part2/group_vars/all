@@ -1,3 +1,4 @@
 db_dumps_directory: /home/admini/db_dumps
 home_dir: /home/admini/
 local_backups_dir: ~/backups
+venv_base_dir: "{{ home_dir }}venvs/"

@@ -1,5 +1,4 @@
 code_dir: "{{ home_dir }}code/example/websites/facetweet/"
-venv_base_dir: "{{ home_dir }}venvs/"
 venv: "{{ venv_base_dir }}facetweet"
 app_name: facetweet
 app_url: "facetweet.com"
