@@ -31,6 +31,10 @@ angular.module('hackerit', [])
     }])
   .controller('MainCtrl', ["$http", function($http) {
     var self = this;
+    $http.get("/link/").then(function(response) {
+        self.links = response.data.links;
+    });
+
     self.new_link = function() {
       $http({
         url: "/link/",
@@ -38,7 +42,9 @@ angular.module('hackerit', [])
         data: JSON.stringify(self.new_link_data),
         headers: {'Content-Type': 'application/json'}
       }).then(function(response) {
-        console.log(response.data);
+        $http.get("/link/").then(function(response) {
+          self.links = response.data.links;
+        });
       });
     };
   }]);

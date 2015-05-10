@@ -36,6 +36,19 @@ class Link(db.Model):
     user_email = db.Column(db.String(), db.ForeignKey('user.email'))
     points = db.Column(db.Integer)
 
+    def to_dict(self):
+        return dict(url=self.url,
+                    text=self.text)
+
+class Vote(db.Model):
+    __tablename__ = 'vote'
+    __table_args__ = (
+        db.PrimaryKeyConstraint('user_email', 'link_id'),
+    )
+    user_email = db.Column(db.String(), db.ForeignKey("user.email"))
+    link_id = db.Column(db.Integer(), db.ForeignKey("link.id"))
+    vote_up = db.Column(db.Boolean(), default=True)
+
 
 def logged_in(handler):
     @wraps(handler)
@@ -86,13 +99,36 @@ def logout():
     return jsonify({"status": "logged_out"})
 
 @app.route("/link/", methods=["POST"])
-def new_post():
+@logged_in
+def new_link(user):
     data = request.get_json()
-    link = Link(url=data['url'], text=data['description'])
+    link = Link(url=data['url'],
+                text=data['description'],
+                user_email=user.email)
     db.session.add(link)
     db.session.commit()
     return jsonify({"status": "OK"})
 
+@app.route("/link/", methods=["GET"])
+@logged_in
+def list_links(user):
+    links = Link.query.all()
+    return jsonify({"links": [link.to_dict() for link in links]})
+
+@app.route("/vote/", methods=["POST"])
+@logged_in
+def vote():
+    data = request.get_json()
+    vote = Vote.query.filter_by(
+        link_id=data['link_id'],
+        user_email=user.email).first()
+    if existing:
+        pass
+    else:
+        vote = Vote(link_id=data['link_id'], user_email=user.email)
+        db.session.add(vote)
+        db.session.commit()
+    return jsonify({'status':"OK"})
 
 def run():
     app.debug = True

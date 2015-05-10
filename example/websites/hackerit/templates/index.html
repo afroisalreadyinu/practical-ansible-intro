@@ -48,25 +48,32 @@
     <div class="container"
          ng-show="root_ctrl.logged_in">
       <h1>Hackerit</h1>
-    </div>
-    <div ng-controller="MainCtrl as ctrl">
+      <div ng-controller="MainCtrl as ctrl">
 
-      <form name="new-link"
-            ng-submit="ctrl.new_link()"
-            class="col-md-4">
-        <h2 class="form-signin-heading">Submit new link</h2>
-        <input type="text"
-               class="form-control"
-               placeholder="URL"
-               ng-model="ctrl.new_link_data.url" required autofocus>
-        <textarea class="form-control"
-                  rows="6"
-                  placeholder="Description"
-                  ng-model="ctrl.new_link_data.description" required>
-        </textarea>
-        <button class="btn btn-lg btn-primary btn-block"
-                type="submit">Submit new link</button>
-      </form>
+        <form name="new-link"
+              ng-submit="ctrl.new_link()"
+              class="col-md-4">
+          <h2 class="form-signin-heading">Submit new link</h2>
+          <input type="text"
+                 class="form-control"
+                 placeholder="URL"
+                 ng-model="ctrl.new_link_data.url" required autofocus>
+          <textarea class="form-control"
+                    rows="6"
+                    placeholder="Description"
+                    ng-model="ctrl.new_link_data.description" required>
+          </textarea>
+          <button class="btn btn-lg btn-primary btn-block"
+                  type="submit">Submit new link</button>
+        </form>
+
+        <div ng-repeat="link in ctrl.links">
+          <span class="glyphicon glyphicon-arrow-up"></span>
+          <span class="glyphicon glyphicon-arrow-down"></span>
+          <a href="{{ link.url }}">{{ link.text }}</a>
+        </div>
+      </div>
+
     </div>
 
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
