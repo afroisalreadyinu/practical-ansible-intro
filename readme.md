@@ -749,6 +749,15 @@ above. In this case, the application configuration is generated using
 mostly the variables in the loaded `vars/{{ app }}` file. The same
 module is also used to create the upstart configuration file.
 
+**YAML Note**: Some lines that have variable insertion with the `{{
+}}`syntax are quoted (such as the `command` line of the `Install {{
+app }}` task), and some aren't. The reason for this difference is that
+when a line starts with curly braces, it has to be quoted, so that
+it's not parse as a YAML dictionary, but a line for Ansible processing
+instead. See [the
+documentation](http://docs.ansible.com/playbooks_variables.html#hey-wait-a-yaml-gotcha)
+for more details.
+
 Next comes the creation of a database for the app using the
 `postgresql_db`. The database name is looked up from the vars file,
 while the password is looked up from the encoded passwords file. The
@@ -848,4 +857,4 @@ add it to `site.yml` along with the variables files in `vars`, and our
 deployment infrastructure would be ready to go.
 
 TODO
-- the thing with quoting lines that start with curly braces
+- deploy on digitalocean, do etc/hosts
