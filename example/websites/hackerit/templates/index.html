@@ -68,8 +68,14 @@
         </form>
 
         <div ng-repeat="link in ctrl.links">
-          <span class="glyphicon glyphicon-arrow-up"></span>
-          <span class="glyphicon glyphicon-arrow-down"></span>
+          <a ng-click="ctrl.upvote(link)">
+            <span class="glyphicon glyphicon-arrow-up"
+                  ng-class="{'selected':link.upvoted}"></span>
+          </a>
+          <a ng-click="ctrl.downvote(link)">
+            <span class="glyphicon glyphicon-arrow-down"
+                  ng-class="{'selected':link.downvoted}"></span>
+          </a>
           <a href="{{ link.url }}">{{ link.text }}</a>
         </div>
       </div>

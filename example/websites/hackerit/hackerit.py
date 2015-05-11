@@ -38,6 +38,7 @@ class Link(db.Model):
 
     def to_dict(self):
         return dict(url=self.url,
+                    link_id=self.id,
                     text=self.text)
 
 class Vote(db.Model):
@@ -117,18 +118,29 @@ def list_links(user):
 
 @app.route("/vote/", methods=["POST"])
 @logged_in
-def vote():
+def vote(user):
     data = request.get_json()
     vote = Vote.query.filter_by(
         link_id=data['link_id'],
         user_email=user.email).first()
-    if existing:
-        pass
+    ret_data = None
+    if vote:
+        if vote.vote_up == data['upvote']:
+            #cancellation
+            db.session.delete(vote)
+            ret_data = {'upvoted': False, 'downvoted': False}
+        else:
+            vote.vote_up = data['upvote']
+            db.session.add(vote)
     else:
-        vote = Vote(link_id=data['link_id'], user_email=user.email)
+        vote = Vote(link_id=data['link_id'],
+                    user_email=user.email,
+                    vote_up=data['upvote'])
         db.session.add(vote)
-        db.session.commit()
-    return jsonify({'status':"OK"})
+    db.session.commit()
+    if not ret_data:
+        ret_data = {'upvoted':vote.vote_up, 'downvoted': not vote.vote_up}
+    return jsonify(ret_data)
 
 def run():
     app.debug = True

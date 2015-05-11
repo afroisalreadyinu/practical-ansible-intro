@@ -36,3 +36,7 @@
 small {
     color: #777;
 }
+
+span.selected {
+    color: red;
+}

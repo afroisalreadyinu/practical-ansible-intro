@@ -47,4 +47,28 @@ angular.module('hackerit', [])
         });
       });
     };
+
+    self.upvote = function(link) {
+      $http({
+        url: "/vote/",
+        method: "POST",
+        data: JSON.stringify({link_id:link.link_id, upvote:true, downvote:false}),
+        headers: {'Content-Type': 'application/json'}
+      }).then(function(response) {
+        link.upvoted = response.data.upvoted;
+        link.downvoted = response.data.downvoted;
+      });
+    };
+
+    self.downvote = function(link) {
+      $http({
+        url: "/vote/",
+        method: "POST",
+        data: JSON.stringify({link_id:link.link_id, downvote:true, upvote: false}),
+        headers: {'Content-Type': 'application/json'}
+      }).then(function(response) {
+        link.upvoted = response.data.upvoted;
+        link.downvoted = response.data.downvoted;
+      });
+    };
   }]);
