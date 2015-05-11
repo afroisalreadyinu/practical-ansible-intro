@@ -1,4 +1,5 @@
 import os
+import code
 from datetime import datetime
 from functools import wraps
 
@@ -14,6 +15,7 @@ from flask import (Flask,
                    session)
 
 from flask.ext.sqlalchemy import SQLAlchemy
+from sqlalchemy import and_
 from passlib.apps import custom_app_context
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
@@ -34,12 +36,12 @@ class Link(db.Model):
     url = db.Column(db.String(), unique=True)
     text = db.Column(db.String())
     user_email = db.Column(db.String(), db.ForeignKey('user.email'))
-    points = db.Column(db.Integer)
+    points = db.Column(db.Integer, nullable=False, default=0)
 
-    def to_dict(self):
-        return dict(url=self.url,
-                    link_id=self.id,
-                    text=self.text)
+    def recalculate_points(self):
+        upvotes = Vote.query.filter_by(link_id=self.id, vote_up=True).count()
+        downvotes = Vote.query.filter_by(link_id=self.id, vote_up=False).count()
+        self.points = upvotes - downvotes
 
 class Vote(db.Model):
     __tablename__ = 'vote'
@@ -110,11 +112,25 @@ def new_link(user):
     db.session.commit()
     return jsonify({"status": "OK"})
 
+def to_dict(entry):
+    no_vote = entry[3] is None
+    return dict(link_id=entry[0],
+                url=entry[1],
+                text=entry[2],
+                points=entry[3],
+                upvoted=not no_vote and entry[4],
+                downvoted=not no_vote and not entry[4])
+
 @app.route("/link/", methods=["GET"])
 @logged_in
 def list_links(user):
-    links = Link.query.all()
-    return jsonify({"links": [link.to_dict() for link in links]})
+    links = Link.query.outerjoin(
+        Vote,
+        and_(Vote.link_id==Link.id,
+             Vote.user_email=='ulas@test')).values(
+                 Link.id, Link.url, Link.text, Link.points, Vote.vote_up
+             )
+    return jsonify({"links": [to_dict(link) for link in links]})
 
 @app.route("/vote/", methods=["POST"])
 @logged_in
@@ -137,9 +153,14 @@ def vote(user):
                     user_email=user.email,
                     vote_up=data['upvote'])
         db.session.add(vote)
+    link = Link.query.get(data['link_id'])
+    link.recalculate_points()
+    db.session.add(link)
     db.session.commit()
     if not ret_data:
-        ret_data = {'upvoted':vote.vote_up, 'downvoted': not vote.vote_up}
+        ret_data = {'upvoted':vote.vote_up,
+                    'downvoted': not vote.vote_up,
+                    'points': link.points}
     return jsonify(ret_data)
 
 def run():
@@ -149,3 +170,7 @@ def run():
 def create_db():
     with app.app_context():
         db.create_all()
+
+def shell():
+    with app.app_context():
+        code.interact(local=locals())

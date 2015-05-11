@@ -9,5 +9,6 @@ setup(
     zip_safe=False,
     entry_points = {'console_scripts':
                     ['runlocal=hackerit:run',
-                     'createdb=hackerit:create_db']}
+                     'createdb=hackerit:create_db',
+                     'shell=hackerit:shell']}
 )

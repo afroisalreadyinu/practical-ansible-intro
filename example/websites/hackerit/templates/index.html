@@ -72,6 +72,7 @@
             <span class="glyphicon glyphicon-arrow-up"
                   ng-class="{'selected':link.upvoted}"></span>
           </a>
+          {{ link.points }}
           <a ng-click="ctrl.downvote(link)">
             <span class="glyphicon glyphicon-arrow-down"
                   ng-class="{'selected':link.downvoted}"></span>

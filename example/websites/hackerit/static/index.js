@@ -57,6 +57,7 @@ angular.module('hackerit', [])
       }).then(function(response) {
         link.upvoted = response.data.upvoted;
         link.downvoted = response.data.downvoted;
+        link.points = response.data.points;
       });
     };
 
@@ -69,6 +70,7 @@ angular.module('hackerit', [])
       }).then(function(response) {
         link.upvoted = response.data.upvoted;
         link.downvoted = response.data.downvoted;
+        link.points = response.data.points;
       });
     };
   }]);
