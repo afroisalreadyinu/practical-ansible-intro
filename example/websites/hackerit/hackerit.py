@@ -113,7 +113,7 @@ def new_link(user):
     return jsonify({"status": "OK"})
 
 def to_dict(entry):
-    no_vote = entry[3] is None
+    no_vote = entry[4] is None
     return dict(link_id=entry[0],
                 url=entry[1],
                 text=entry[2],
@@ -159,8 +159,8 @@ def vote(user):
     db.session.commit()
     if not ret_data:
         ret_data = {'upvoted':vote.vote_up,
-                    'downvoted': not vote.vote_up,
-                    'points': link.points}
+                    'downvoted': not vote.vote_up}
+    ret_data['points'] = link.points
     return jsonify(ret_data)
 
 def run():
