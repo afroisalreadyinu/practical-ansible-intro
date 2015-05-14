@@ -102,8 +102,11 @@ are among the chosen few who can get a Python script with dependencies
 working, you can use the `droplets.py` in this repo to create, list
 and delete new DigitalOcean droplets. This script will create the
 droplet with your SSH key already included, which will save you one
-more step.
-
+more step. Keep in mind that the initialization of a droplet will take
+a few minutes, which means that you can't access a droplet right after
+creating it. You can find out whether a droplet is ready for use by
+running `python droplet.py list`. An active droplet will be listed as
+having status `active`.
 
 ### Failing connection on server change
 
@@ -780,7 +783,14 @@ your host machine, and run `vagrant reload` to restart the VM:
     config.vm.network "forwarded_port", guest: 80, host: 8001
 
 Afterwards, the application you deployed (one of facetweet or
-hackerit) should be available on http://localhost:8001.
+hackerit) should be available on http://localhost:8001. If you are
+deploying to an external server, such as DigitalOcean as explained
+above, you can also update your `/etc/hosts` file (or
+`/private/etc/hosts` if you're on a Mac), adding the lines `IP.ADDRESS
+hackerit.com` and `IP.ADDRESS facetweet.com`, where `IP.ADDRESS` is
+replaced with the IP-address of your server. Afterwards, if you go to
+hackerit.com on your browser, you should see the login page of the
+hackerit app.
 
 ### Tags
 
@@ -856,6 +866,3 @@ playbook is imported twice with the app variable set differently in
 each. If we were to add a new web application to our server, we would
 add it to `site.yml` along with the variables files in `vars`, and our
 deployment infrastructure would be ready to go.
-
-TODO
-- deploy on digitalocean, do etc/hosts
