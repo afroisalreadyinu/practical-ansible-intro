@@ -1,12 +1,13 @@
 # A Practical Guide to Ansible
 
-Why another Ansible guide? Because Ansible is a great tool, but the
-existing tutorials overcomplicate the matters. While trying to pick up
-Ansible for provisioning servers for various side projects, I ran into
-a number of issues that were not covered to sufficient detail by other
-online tutorials. The aim of this tutorial is to serve as a roadmap to
-programmers who want to be productive in Ansible quickly, avoiding
-certain pitfalls.
+Ansible is a great tool that can be used for the orchestration of
+server clusters of all sizes, from a single computer to a huge farm.
+While trying to pick up Ansible for provisioning servers for various
+side projects, I ran into a number of issues that were not covered to
+sufficient detail by other online tutorials. The aim of this tutorial
+is to serve as a roadmap to programmers who want to understand the
+central concepts and be productive in Ansible quickly, while avoiding
+such pitfalls.
 
 ## What is Ansible?
 
