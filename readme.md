@@ -57,12 +57,13 @@ will be explained.
 ### VM
 
 The easiest way to create and manage VMs locally is using
-Vagrant. [Install it](https://www.vagrantup.com/) and start the
-default Ubuntu machine with `vagrant init hashicorp/precise32`. SSH
-into it with `vagrant ssh`, do an `ls` to make sure everything is
-working. All right, that was the easy part. Now you have to copy your
-actual SSH key into this VM. Assuming that the key you want to copy is
-in `/Path/to/your/id_rsa.pub`, run the following command:
+Vagrant. [Install it](https://www.vagrantup.com/) and start a VM
+loaded with Ubuntu 14 by running the command `vagrant init
+sincerely/trusty64`. SSH into it with `vagrant ssh`, do an `ls` to
+make sure everything is working. All right, that was the easy
+part. Now you have to copy your actual SSH key into this VM. Assuming
+that the key you want to copy is in `/Path/to/your/id_rsa.pub`, run
+the following command:
 
     scp -P 2222  /Path/to/your/id_rsa.pub vagrant@127.0.0.1:/tmp
 

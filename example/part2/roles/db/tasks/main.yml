@@ -1,5 +1,5 @@
 - name: Postgres access
-  copy: src=pg_hba.conf dest=/etc/postgresql/9.1/main/pg_hba.conf owner=postgres backup=yes
+  copy: src=pg_hba.conf dest=/etc/postgresql/9.3/main/pg_hba.conf owner=postgres backup=yes
   sudo: yes
   notify:
     - restart postgres
