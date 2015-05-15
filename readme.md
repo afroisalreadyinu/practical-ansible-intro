@@ -1,9 +1,9 @@
-# A Practical Guide to Ansible
+# A Practical Introduction to Ansible
 
 Ansible is a great tool that can be used for the orchestration of
 server clusters of all sizes, from a single computer to a huge farm.
-While trying to pick up Ansible for provisioning servers for various
-side projects, I ran into a number of issues that were not covered to
+While trying to pick up Ansible to provision servers for various side
+projects, I ran into a number of issues that were not covered to
 sufficient detail by other online tutorials. The aim of this tutorial
 is to serve as a roadmap to programmers who want to understand the
 central concepts and be productive in Ansible quickly, while avoiding
@@ -12,7 +12,7 @@ such pitfalls.
 ## What is Ansible?
 
 It's a provisioning tool. That is, it does stuff on computers that you
-want to repeat regularly. Its strenghts are:
+want to repeat regularly. Ansible's strenghts are:
 
 * It does not need any extra software installed on the remote computer.
 
@@ -36,24 +36,25 @@ documentation](http://docs.ansible.com/intro_installation.html).
 ## How do I run it?
 
 Ansible works over SSH, and does not require any special software
-installed on the remote server. Principally, therefore, you only need
-a computer which you can acces over SSH. The prefered method of
+installed on the remote server. Principally, you only need a Linux
+instance which you can acces over SSH. The prefered method of
 authentication is using private keys instead of passwords, due to
 security and ease of use. The collection of servers on which an
 Ansible playbook should run is specified in what is called the
 **inventory**. The inventory lists the names of the computers together
 with connection information such as SSH port and IP address. If you
-already have a server to which you can SSH as root, here is what you
-should put into a file named `inventory`:
+already have a server to which you can SSH as root on the default
+port, here is what you should put into a file named `inventory`:
 
     server ansible_ssh_host=IP_ADRESS
 
-Since we will be modifying the system quite a bit, you are recommended
-to use a server you can create and destroy at will. The easiest way to
-do this is to use a VM, either locally or from a provider.  Depending
-on which option you choose, the inventory file, the file which tells
-Ansible how to reach a computer, is going to be a bit different. These
-will be explained.
+The best place to save this file would be in the `example` directory
+within this repo, because we will be running our the sample playbooks
+from there. Since we will be modifying the system quite a bit, you are
+recommended to use a server you can wipe and reinstall at will. The
+easiest way to do this is to use a VM, either locally or from a
+provider. Depending on which option you choose, the inventory file is
+going to be a bit different.
 
 ### VM
 
@@ -62,9 +63,11 @@ Vagrant. [Install it](https://www.vagrantup.com/) and start a VM
 loaded with Ubuntu 14 by running the command `vagrant init
 sincerely/trusty64`. SSH into it with `vagrant ssh`, do an `ls` to
 make sure everything is working. All right, that was the easy
-part. Now you have to copy your actual SSH key into this VM. Assuming
-that the key you want to copy is in `/Path/to/your/id_rsa.pub`, run
-the following command:
+part. Vagrant initializes the virtual machine with a default unsafe
+SSH key. In order to access this VM as root, you have to copy your own
+SSH key into this VM, and add it to the authorized keys of the root
+account. Assuming that the key you want to copy is in
+`/Path/to/your/id_rsa.pub`, run the following command:
 
     scp -P 2222  /Path/to/your/id_rsa.pub vagrant@127.0.0.1:/tmp
 
@@ -80,10 +83,10 @@ account's authorized keys:
     chmod 600 /root/.ssh/authorized_keys
 
 Now you should be able to SSH from anywhere on the host computer into
-the VM as root. The default Vagrant box comes with the user `vagrant`
-that has sudo rights, and one could run most of the commands we will
-use for demo purposes with that user. The aim of adding the root user
-is to make the examples uniform.
+the VM as root with `ssh -p 2222 root@127.0.0.1`. The default Vagrant
+box comes with the user `vagrant` that has sudo rights, and one could
+run most of the commands we will use for demo purposes with that
+user. The aim of adding the root user is to make the examples uniform.
 
 Last but not least here is what the contents of the inventory file
 should be:
@@ -100,11 +103,11 @@ have your SSH key and paste it in there.
 
 In case you want to create and remove droplets liberally, and if you
 are among the chosen few who can get a Python script with dependencies
-working, you can use the `droplets.py` in this repo to create, list
-and delete new DigitalOcean droplets. This script will create the
-droplet with your SSH key already included, which will save you one
-more step. Keep in mind that the initialization of a droplet will take
-a few minutes, which means that you can't access a droplet right after
+working, you can use the `droplets.py` in this repo to create, list or
+delete new DigitalOcean droplets. This script will create the droplet
+with your SSH key already included, which will save you one more
+step. Keep in mind that the initialization of a droplet will take a
+few minutes, which means that you can't access a droplet right after
 creating it. You can find out whether a droplet is ready for use by
 running `python droplet.py list`. An active droplet will be listed as
 having status `active`.
@@ -123,7 +126,7 @@ also contains the port, if it's non-default, in the
 ### Ping it
 
 Once you have your test server set up, run the following command to
-check whether everything is working:
+check whether Ansible can contact the server:
 
     ansible -i inventory server -m ping
 
@@ -137,14 +140,15 @@ something went wrong:
 
 You're right, the above command is too much stuff for a simple
 ping. The stand-alone `ansible` command is rarely used, though; it is
-mostly for the purpose of testing individual modules. The above ping
-command does the following: Use the inventory passed with the `-i`
-argument to run the module passed with the `-m` argument. You're
-thinking "WTF is a module", just be patient for another minute, OK?
-The ping module does not need any arguments, but if it did, it would
-have been possible to pass them with another switch. But as mentioned,
-we are interested in more complicated stuff and not a crappy
-replacement for `ssh -c`, so read on for plays, roles, and more.
+mostly for the purpose of testing individual modules, or running
+emergency commands on a set of servers. The above ping command does
+the following: Use the inventory passed with the `-i` argument to run
+the module passed with the `-m` argument. The concept of modules will
+be explained in the next section. The ping module does not need any
+arguments, but if it did, it would have been possible to pass them
+with another switch. But as mentioned, we are interested in more
+complicated stuff and not a crappy replacement for `ssh -c`, so read
+on for plays, roles, and more.
 
 ## Plays, Modules, etc
 
@@ -162,7 +166,7 @@ simple as possible, here is a plain list:
     sets of servers, and aliases for these.
 
 * **Roles** are collections of actions that serve a purpose, and data
-    that belongs to these actions. Examples are, installing,
+    that belongs to these actions. Examples are installing,
     configuring and then starting a database server, or retrieving
     code, building it, moving it to servers and runing it.
 
@@ -171,35 +175,25 @@ simple as possible, here is a plain list:
 
 So in effect, **roles are collections of module applications, and
 playbooks are specifications of which roles should be matched to which
-inventory**. Module application means that a module is applied to a
-host with some arguments.
-
-A sidenote: In the [official
-documentation](http://docs.ansible.com/playbooks.html) it says that
-"Playbooks are Ansible’s configuration, deployment, and orchestration
-language". What kind of retarded bullshit technical writing is this?
-Playbooks are not the fucking language, they are what you write in the
-fucking language. Can't they pay for a fucking technical writer? Or
-even an editor? Or just some sane person with a fucking highschool
-degree who can proofread this shit? For fucks sake.
+inventory**. Module application means that a module is ran on a host
+with some arguments.
 
 ## Writing plays & roles
 
-OK, let's get going. The example I want to cover here is the average
-case of an RDBMS-driven website running on Python. What do we need on
-this server? Well, first of all, you need to forbid root SSH access,
-and create an admin user with sudo rights who is allowed to do rooty
-stuff instead. The gods of sysadministan have agreed that this is the
-right thing to do; who are we to contest that?  Not that it sinks your
-server's chances of getting hacked, but I don't want to be the one
-responsible if it happens.
+Let's get going with roles, then. The example I want to cover here is
+the average case of an RDBMS-driven website running on Python. What do
+we need on this server? Well, first of all, we need to forbid root SSH
+access, and create an admin user with sudo rights who is allowed to do
+rooty stuff instead. The gods of sysadministan have agreed that this
+is the right thing to do; who are we to contest that?  Not that it
+sinks your server's chances of getting hacked, but I don't want to be
+the one responsible if it happens.
 
-Here is how a concise playbook that achieves this looks like:
+Here is a simple playbook that achieves this:
 
 ```yml
 - hosts: server
   remote_user: root
-  sudo: yes
   tasks:
     - name: Create admin user
       user: name=admini shell=/bin/bash
@@ -214,31 +208,37 @@ Here is how a concise playbook that achieves this looks like:
       lineinfile: dest=/etc/ssh/sshd_config regexp="^PermitRootLogin" line="PermitRootLogin no" state=present
 ```
 
+This playbook runs on `server` (as specified by `hosts`) as user
+`root` (as specified by `remote_user`). The list of tasks are executed
+as Ansible modules. The admini user is created, given sudo rights, the
+user's SSH key is copied for admini, and finally, SSH login as root is
+deactivated.
+
 You're probably asking yourself about the format. It's YAML, yet
 another markup language. The good things about it: it's neither XML
 nor JSON. The bad thing: It's a markup language, and sometimes you
 have to bend over backwards to get what the crappiest programming
 language would get done in two lines of code. That's the way Ansible
-rolls, so you'll have to deal with it. In this simple example, we are
-listing the tasks within the playbook, which should be OK for a small
-provisioning exercise, but it should be obvious that as the number of
-tasks grows, and the inventory specification gets more complicated,
-this method will not work. Each task has a name, which is more like a
-description, and a specification on the next line. The specification
-starts with the name of a module, and continues with parameters as
-fields. [This list of all available ansible
+rolls, though, so you'll have to deal with it. In this simple example,
+we are listing the tasks within the playbook, which should be OK for a
+small provisioning exercise, but it should be obvious that as the
+number of tasks grows, and the inventory specification gets more
+complicated, this method will not work. Each task has a name, which is
+more like a description, and a specification on the next line. The
+specification starts with the name of a module, and continues with
+parameters as fields. [This list of all available ansible
 modules](http://docs.ansible.com/list_of_all_modules.html) should
 leave no doubts that nearly every need can be served out of the box.
 
 In order to run the above playbook, save it in a file named
-`playbook_simple.yml` next to the inventory. Or just navigate to the
-`examples/part1` directory in this repo and copy your inventory into
-that directory. Then run the following command:
+`user_accounts.yml` next to the inventory. Or just navigate to the
+`examples/part1` directory in this repo. Then run the following
+command:
 
-    ansible-playbook -i inventory playbook_simple.yml
+    ansible-playbook -i ../inventory user_accounts.yml
 
 The `ansible-playbook` command runs playbooks instead of single
-modules, and is where the real Ansible magic lies, so you'll be using
+modules, and is where the real Ansible magic lies, so we'll be using
 it much more often. When you run the above command, you should see a
 list of the tasks by name, followed by information on whether anything
 changed, and a final line that recaps this information. Here is what
@@ -259,7 +259,7 @@ however, here is what we see:
 
 Now, `changed=0`, because the tasks do not have to be run, as they
 would not lead to any changes in the system. This is what is meant
-with *idempotent*; running this playbook (and ideally any playbook)
+with *idempotent*; re-running this playbook (and ideally any playbook)
 will not lead to a different system, no matter how many times you've
 already run it.
 
@@ -280,8 +280,8 @@ found in `examples/part1/whoami.yml`):
       command: whoami
 ```
 
-In order to also see the output of this command, you have to run the
-playbook command with the next level of verbosity:
+In order to see the output of the `whoami` command, you have to run
+the playbook command with the next level of verbosity:
 
     ansible-playbook -i inventory whoami.py -v
 
@@ -380,15 +380,14 @@ playbook that does all of these
 ```
 
 With this playbook, we would get a web and a database server, and the
-tools to check out our code; the following tasks would involve
-checking out our code, and installing it. It would be rather messy if
-we continued adding more tasks into this play, however, not to mention
-the organization of configuration files and templates that will come
-up later. Therefore, let's take the step mentioned earlier and
-separate out our playbooks into roles. A **role** gathers tasks that
-are conceptually coherent, and bundles them with some other things
-like data and triggers. Roles reside in the `roles` directory next to
-playbooks, and have the following file structure:
+tools to check out our code. It would be rather messy if we continued
+adding more tasks into this play, however, not to mention the
+organization of configuration files and templates that will come up
+later. Therefore, let's take the step mentioned earlier and separate
+out our playbooks into roles. A **role** gathers tasks that are
+conceptually coherent, and bundles them with some other things like
+files, templates and triggers. Roles reside in the `roles` directory
+next to playbooks, and have the following file structure:
 
 ```yml
 playbook.yml
@@ -457,25 +456,25 @@ of a loop in the last task. The `with_items` option enables looping a
 task over a list, and replacing `{{ item }}` with the elements of that
 list. This is equivalent to repeating the task with the list
 elements. The double curly braces is the syntax used by Jinja2 for
-inserting variables, which we will discuss now.
+inserting variables.
 
 ## Variables
 
 Variables in Ansible are what you would expect: placeholders for
-values that might change according to circumstances. Using values is
-relatively straightforward; you can use them pretty much anywere by
+values that might change according to circumstances. Using variables
+is relatively straightforward; you can use them pretty much anywere by
 wrapping the variable's name in double curly braces, such as the loop
 that used `item` as a value above. This syntax for variable
-substitution, taken over from Jinja, can be used pretty much anywhere
+substitution, taken over from Jinja2, can be used pretty much anywhere
 in Ansible, but the more advanced uses of Jinja2 is restricted to
 actual templates. In role and play definitions, only variable
-substitution is allowed; it is not possile to use other Jinja2
+substitution is allowed; it is not possible to use other Jinja2
 features such as conditionals or looping.
 
-Values for variables can be defined through the following
-mechanisms. In the following, we will go through these, and go into
-detail where necessary. For precedence of these different ways of
-defining variables, see [the official
+Values for variables can be supplied through various mechanisms. In
+the following, we will go through these, and go into detail where
+necessary. For precedence of these different ways of defining
+variables, see [the official
 documentation](http://docs.ansible.com/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable).
 
 ##### In the inventory
@@ -578,23 +577,24 @@ db_server_2
 ```
 
 Any playbooks can then use the group name instead of individual host
-names for the `hosts` specification. The `group_vars` feature is very
-similar in this respect to the `host_vars` one: a variables file in
-the directory `group_vars/db_servers` will be available to the hosts
-in the `db_servers` group. There is one special group: `all`, in which
-all hosts are included. Consequently, the variables in the file
-`group_vars` are available on all hosts.
+names as `hosts`. The `group_vars` feature is very similar in this
+respect to the `host_vars` one: a variables file in the directory
+`group_vars/db_servers` will be available to the hosts in the
+`db_servers` group. There is one special group: `all`, in which all
+hosts are included. Consequently, the variables in the file
+`group_vars/all` are available on all hosts.
 
-In the example project we are building, we would like to have the
-ability to deploy different web applications, preferably by supplying
-the name of the project on the command line instead of editing a
-file. This can be achieved by using command line variables. Loading
-the correct variables can be done by including the
-application-specific variables in separate files and loading these
-based on the name of the application. The most basic and common
-variables would go into the `group_vars/all` file. This is how it is
-done in `examples/part2/deploy_app.yml`, a playbook that builds and
-runs a single web application. Here are the contents of that file:
+In the example orchestration infrastructure we are building, we would
+like to have the ability to deploy different web applications,
+preferably by supplying the name of the project on the command line
+instead of editing a file. This can be achieved by using command line
+variables. The correct sets of variables can be loaded by storing
+application-specific variables in separate files and including these
+based on the name of the application. Common variables would go into
+the `group_vars/all` file. The playbook
+`examples/part2/deploy_app.yml`, which builds and runs a single web
+application, uses these methods to load data. Here are the contents of
+this playbook:
 
 ```yml
 - hosts: server
@@ -615,7 +615,7 @@ runs a single web application. Here are the contents of that file:
     - nginx
 ```
 
-We are using the `include_vars` module here to load variables files
+We are using the `include_vars` module to load variables files
 dynamically. In the first play, `include_vars` is used to load the
 `passwords.yml` file that contains the database password. This file is
 encrypted; dealing with passwords in encrypted files will be explained
@@ -623,14 +623,14 @@ in the next section. The second playbook loads the file that contains
 the variables belonging to the application specified by `app`. As you
 can see in this second `include_vars`, variables can be subsituted in
 many places where you would need them. What's peculiar in this
-playbook is the use of `pre_tasks`. In a play, the order of execution
-is first roles and then tasks. The tasks listed in `pre_tasks`, on the
-other hand, are executed before the roles. In this case, the variables
-loaded through the `include_vars` calls in `pre_tasks` make the
-variables in those files available to the rest of not only this play,
-but the rest of the playbook. Assuming that we want to deploy the
-application facetweet from the `examples/websites` directory, here is
-how the Ansible command would look like:
+playbook is the use of `pre_tasks` in both plays. In a play, the order
+of execution is first roles and then tasks. The tasks listed in
+`pre_tasks`, on the other hand, are executed before the roles. In this
+case, the variables loaded through the `include_vars` calls in
+`pre_tasks` make the variables in those files available to the rest of
+not only this play, but the rest of the playbook. Assuming that we
+want to deploy the application facetweet from the `examples/websites`
+directory, here is how the Ansible command would look like:
 
     ansible-playbook -i inventory part2/deploy_app.yml -e "app=facetweet" --ask-vault-pass
 
@@ -665,8 +665,8 @@ This handler can then be referenced from a role in the `notify` field:
 
 A nice feature of handlers is that they will be triggered once in a
 single play. That is, if you change a configuration multiple times,
-the service will be restarted only once, at the end of the play, and
-not with each configuration change.
+the service will be restarted only once, at the end of the play,
+instead of with each configuration change.
 
 ## Vault
 
@@ -684,7 +684,7 @@ You will be prompted for a password that will be used to encode the
 file, and then dropped into the editor specified by the `EDITOR`
 environment variable (most probably vi or vim if you didn't set it
 somewhere). You can edit or rekey (i.e. change the password for) this
-file using command of the same name, or encrypt existing files. The
+file using the associated options, or encrypt existing files. The
 really useful functionality is running playbooks that refer to
 encrypted files without having to decrypt them first. To do this, you
 have to pass the argument `--ask-vault-pass` to `ansible-playbook`,
@@ -694,34 +694,33 @@ included in the examples is `testtest`, by the way.
 ## Tasks & Modules
 
 Ansible has a lot of built-in modules, covering every step of our goal
-in this tutorial, deploying a Python web application. The roles in the
-second play of `deploy_app.yml`, namely `code`, `build` and `nginx`
-use these modules combined with a number of other techniques. We will
-look into these now.
+of deploying a Python web application. The roles in the second play of
+`deploy_app.yml`, namely `code`, `build` and `nginx` use these modules
+combined with a number of other techniques. We will go through these
+now.
 
-The `code` role is only responsible for checking out the code for the
-demo websites from Github; there are two tasks in
-`code/tasks/main.yml` that achieve this. The first makes sure that the
-github.com domain key is in the `known_hosts` file of the Ansible user
-using the `lineinfile` module. This module will make sure that a line
-is there or not, depending on the `state` argument. If the `regexp`
-argument is also provided, it will be used to find the line that
-should be replaced in case of `state=present`, or removed for
-`state=absent`. This task uses two other features. The first is the
-use of `ansible_ssh_user` in the path specification for the
-`known_hosts` file; this variable is one of those provided by Ansible
-itself. The other is the use of the **lookup** plugin. This plugin
-enables reading data from the local system, either by piping the
-result of a command, as in this case, or by reading a file. By looking
-up the github.com key locally, and copying it onto the target server,
-we can be sure that we're using the right key, and can securely clone
-the repo. The second task in `code/tasks/main.yml` uses the `git`
-module, and is relatively straightforward: It makes sure that the repo
-is cloned, and by default updates to head of master. The `lookup`
-module is used again, to get the remote origin of this repo, to avoid
-harcoding it.
+The `code` role in `code/tasks/main.yml` has two tasks and is
+responsible for checking out the code for the demo websites from
+Github. The first task makes sure that the github.com domain key is in
+the `known_hosts` file of the Ansible user using the `lineinfile`
+module. This module will make sure that a line is there or not,
+depending on the `state` argument. If the `regexp` argument is also
+provided, it will be used to find the line that should be replaced in
+case of `state=present`, or removed for `state=absent`. This task uses
+two other features. One is the use of `ansible_ssh_user` in the path
+specification for the `known_hosts` file; this variable is one of
+those provided by Ansible itself. The other is the use of the
+**lookup** plugin. This plugin enables reading data from the local
+system, either by piping the result of a command, as in this case, or
+by reading a file. By looking up the github.com key locally, and
+copying it onto the target server, we can be sure that we're using the
+right key, and can securely clone the repo. The second task in
+`code/tasks/main.yml` uses the `git` module, and is relatively
+straightforward: It makes sure that the repo is cloned, and by default
+updates to head of master. The `lookup` module is used again, to get
+the remote origin of this repo, to avoid harcoding it.
 
-The second role, `build`, uses a number of the most frequently used
+The second role, `build`, uses some of the most popular Ansible
 modules to create a virtualenv, install the code, and populate the
 database. The `file` module has a lot of options, and can be used for
 various different purposes, such as removing a file, linking two
@@ -733,8 +732,8 @@ the `pip` module, which gets the path of the virtualenv as an option,
 and the name of the dependency file. The values for all these options
 come from the variables file `vars/facetweet`. If you inspect that
 file, you will see that the values are composed from each other. That
-is, a variable coming after another in a file can refer to that in its
-value, as in the following few lines:
+is, a variable can refer to another one coming before it in its value,
+as in the following few lines:
 
 ```yml
 home_dir: /home/admini/
@@ -758,64 +757,65 @@ module is also used to create the upstart configuration file.
 }}`syntax are quoted (such as the `command` line of the `Install {{
 app }}` task), and some aren't. The reason for this difference is that
 when a line starts with curly braces, it has to be quoted, so that
-it's not parse as a YAML dictionary, but a line for Ansible processing
-instead. See [the
+it's not parsed as a YAML dictionary, but a line for Ansible
+processing instead. See [the
 documentation](http://docs.ansible.com/playbooks_variables.html#hey-wait-a-yaml-gotcha)
 for more details.
 
 Next comes the creation of a database for the app using the
-`postgresql_db`. The database name is looked up from the vars file,
-while the password is looked up from the encoded passwords file. The
-result of this task is registered in the variable `db_created` to
-check whether it was changed in the next task. If it changed, i.e. if
-a new database was created, the command from the web application to
-create the tables from the SQLAlchemy schema is called. The aptly
-named `command` module is run to call this command. The option
-`environment` is used set values in the environment in which the
-command is run, passing the configuration file generated earlier as
-`APP_CONFIG` to be used by application code.
+`postgresql_db` module. The database name is looked up from the vars
+file, while the password is looked up from the encoded passwords
+file. The result of this task is registered in the variable
+`db_created` to check whether it was changed in the next task. If it
+changed, i.e. if a new database was created, the command from the web
+application to create the tables from the SQLAlchemy schema is
+called. The aptly named `command` module is run to call this
+command. The option `environment` is used set values in the
+environment in which the command is run, passing the configuration
+file generated earlier as `APP_CONFIG` to be used by application code.
 
-Once all these tasks have been started with the command mentioned
+Once all these tasks have been executed with the command mentioned
 above and run to completion, the web application can be accessed on
-the server. If you deployed to a VM with Vagrant, add the following
-line to the Vagrantfile to match port 80 of the guest to port 8001 on
-your host machine, and run `vagrant reload` to restart the VM:
+the server. If you deployed to a VM with Vagrant, edit the
+Vagrantfile, and uncomment the following line to match port 80 of the
+guest (the VM) to port 8080 on your host machine:
 
-    config.vm.network "forwarded_port", guest: 80, host: 8001
+    config.vm.network "forwarded_port", guest: 80, host: 8080
 
-Afterwards, the application you deployed (one of facetweet or
-hackerit) should be available on http://localhost:8001. If you are
-deploying to an external server, such as DigitalOcean as explained
-above, you can also update your `/etc/hosts` file (or
-`/private/etc/hosts` if you're on a Mac), adding the lines `IP.ADDRESS
-hackerit.com` and `IP.ADDRESS facetweet.com`, where `IP.ADDRESS` is
-replaced with the IP-address of your server. Afterwards, if you go to
-hackerit.com on your browser, you should see the login page of the
-hackerit app.
+Don't forget to reboot the VM with `vagrant reload`. Afterwards, the
+application you deployed (one of facetweet or hackerit) should be
+available on http://localhost:8080. If you are deploying to an
+external server, such as DigitalOcean as explained above, you can also
+update your `/etc/hosts` file (or `/private/etc/hosts` if you're on a
+Mac), adding the lines `IP.ADDRESS hackerit.com` and `IP.ADDRESS
+facetweet.com`, where `IP.ADDRESS` is replaced with the IP-address of
+your server. Afterwards, if you go to hackerit.com on your browser,
+you should see the login page of the hackerit app.
 
 ### Tags
 
 What if you want to run tasks in a playbook or role only selectively,
-dependent on a command line option. Your Ansible playbook might
+dependent on a command line option? Your Ansible playbook might
 include tasks that you want to repeat regularly and independent of the
 rest, such as changing the configuration of a service and restarting
 it, or backing up log files. Ansible offers tags for tasks to
-accomodate this use case. Task definitions accept a `tags` option, and
-the `ansible-playbook` can be given a list of tags on the command
-line. With a tag list specified, Ansible runs only those tasks that
-have one of the given tags. The playbook `examples/part2/db_tasks.yml`
-uses tags to switch between making a backup of an application database
-and restoring this backup. This playbook includes a single role that
-runs the tasks for backing up the table for the applications specified
-on the command line. The roles have either the `backup_db` or the
-`restore_db` tag, only the first task that creates the directory for
-saving dumps having both. If we wanted to dump the database for
-facetweet, for example, we would need to run the following command:
+accommodate this use case. Task definitions accept a `tags` option,
+and the `ansible-playbook` command can be given a list of tags as
+argument. With a tag list specified, Ansible runs only those tasks
+that have one of the given tags. The playbook
+`examples/part2/db_tasks.yml` uses tags to switch between making a
+backup of an application database and restoring this backup. This
+playbook includes a single role that runs the tasks for backing up the
+table for the applications specified on the command line. The roles
+have either the `backup_db` or the `restore_db` tag, only the first
+task that creates the directory for saving dumps having both. If we
+wanted to dump the database for facetweet, for example, we would need
+to run the following command:
 
     ansible-playbook -i inventory part2/db_tasks.yml -e "app=facetweet" -t restore_db --ask-vault-pass
 
-With this command, only the tasks containing the `restore_db` tasks
-from the `db_tasks.yml` playbook and `db_maintenance` role. One
+With this command, only the tasks containing the `restore_db` tag from
+the `db_tasks.yml` playbook and `db_maintenance` role will be run. One
 strange thing is that the `pre_tasks` jobs that we use to load
 variables and passwords also have to be tagged; otherwise, they are
 not included in tagged playbook runs. After the variables are loaded,
@@ -843,7 +843,7 @@ processes were running and online. The include mechanism of Ansible is
 very useful in such situations where we want to create a complete
 playbook from smaller parts, achieving a certain level of
 abstraction. The play `part2/site.yml` does not contain any plays
-itself, but includes other playbooks to bring together the various
+itself, but includes other playbooks to bring together various
 components of the application server:
 
 ```yml
