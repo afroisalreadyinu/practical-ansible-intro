@@ -33,12 +33,3 @@
 - name: Start {{ app }} service
   sudo: yes
   service: name="{{ app_name }}" state=started
-
-
-# TODO
-
-# - task to dump db
-# - task to restore db
-
-# MAYBE
-# - local task to simulate host
