@@ -6,3 +6,8 @@
 - include: provision.yml
 - include: app.yml app=facetweet
 - include: app.yml app=hackerit
+
+- hosts: server
+  roles:
+    - { role: db_restore, app: 'facetweet' }
+    - { role: db_restore, app: 'hackerit' }

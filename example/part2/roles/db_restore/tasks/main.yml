@@ -1,0 +1,26 @@
+- name: Load variables
+  include_vars: vars/{{ app }}
+
+- name: Save password to .pgpass
+  template: src=roles/db_maintenance/templates/pgpass.j2 dest={{ home_dir }}/.pgpass mode=0600
+
+- name: Does {{ app }} backup exist?
+  stat: path={{ local_backups_dir }}/{{ app_name }}.sql
+  delegate_to: localhost
+  register: app_dump
+
+- name: Copy {{ app }} database backup
+  copy: src={{ local_backups_dir }}/{{ app_name }}.sql dest={{ db_dumps_directory }}/{{ app_name }}.sql
+  when: app_dump.stat.exists
+
+- name: Remove {{ app }} database
+  postgresql_db: name={{ db_name }} state=absent login_user=admini login_password={{ db_password }}
+  when: app_dump.stat.exists
+
+- name: Create {{ app }} db
+  postgresql_db: name={{ db_name }} encoding='UTF-8' owner=admini login_user=admini login_password={{ db_password }}
+  when: app_dump.stat.exists
+
+- name: Restore {{ app }} database from backup
+  command: psql -d {{ db_name }} -U {{ db_user }} -f {{ db_dumps_directory }}/{{ app_name }}.sql
+  when: app_dump.stat.exists
