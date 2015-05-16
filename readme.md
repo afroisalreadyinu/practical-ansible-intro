@@ -232,7 +232,7 @@ leave no doubts that nearly every need can be served out of the box.
 
 In order to run the above playbook, save it in a file named
 `user_accounts.yml` next to the inventory. Or just navigate to the
-`examples/part1` directory in this repo. Then run the following
+`example/part1` directory in this repo. Then run the following
 command:
 
     ansible-playbook -i ../inventory user_accounts.yml
@@ -270,7 +270,7 @@ you actually are on a server. There are a number of different
 configuration options, command line switches, and playbook options
 that have an effect on the user Ansible runs the actions under. Here
 is a tiny playbook that we will use to print the Ansible user (can be
-found in `examples/part1/whoami.yml`):
+found in `example/part1/whoami.yml`):
 
 ```yml
 - hosts: server
@@ -540,7 +540,7 @@ playbook that does this:
 The output of the first task (a random number) will be saved in the
 variable `whatisit`, and then printed by the second task. You have to
 run the above playbook, which you can find in
-`examples/part2/save_var.yml`, with higher verbosity to see the output
+`example/part2/save_var.yml`, with higher verbosity to see the output
 of the second task:
 
     ansible-playbook -i inventory part2/save_var.yml -vv
@@ -592,7 +592,7 @@ variables. The correct sets of variables can be loaded by storing
 application-specific variables in separate files and including these
 based on the name of the application. Common variables would go into
 the `group_vars/all` file. The playbook
-`examples/part2/deploy_app.yml`, which builds and runs a single web
+`example/part2/deploy_app.yml`, which builds and runs a single web
 application, uses these methods to load data. Here are the contents of
 this playbook:
 
@@ -629,7 +629,7 @@ of execution is first roles and then tasks. The tasks listed in
 case, the variables loaded through the `include_vars` calls in
 `pre_tasks` make the variables in those files available to the rest of
 not only this play, but the rest of the playbook. Assuming that we
-want to deploy the application facetweet from the `examples/websites`
+want to deploy the application facetweet from the `example/websites`
 directory, here is how the Ansible command would look like:
 
     ansible-playbook -i inventory part2/deploy_app.yml -e "app=facetweet" --ask-vault-pass
@@ -803,7 +803,7 @@ accommodate this use case. Task definitions accept a `tags` option,
 and the `ansible-playbook` command can be given a list of tags as
 argument. With a tag list specified, Ansible runs only those tasks
 that have one of the given tags. The playbook
-`examples/part2/db_tasks.yml` uses tags to switch between making a
+`example/part2/db_tasks.yml` uses tags to switch between making a
 backup of an application database and restoring this backup. This
 playbook includes a single role that runs the tasks for backing up the
 table for the applications specified on the command line. The roles
