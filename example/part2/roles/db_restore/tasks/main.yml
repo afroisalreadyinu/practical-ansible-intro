@@ -13,6 +13,10 @@
   copy: src={{ local_backups_dir }}/{{ app_name }}.sql dest={{ db_dumps_directory }}/{{ app_name }}.sql
   when: app_dump.stat.exists
 
+- name: Stop service to free database
+  sudo: yes
+  service: name="{{ app_name }}" state=stopped
+
 - name: Remove {{ app }} database
   postgresql_db: name={{ db_name }} state=absent login_user=admini login_password={{ db_password }}
   when: app_dump.stat.exists
@@ -24,3 +28,7 @@
 - name: Restore {{ app }} database from backup
   command: psql -d {{ db_name }} -U {{ db_user }} -f {{ db_dumps_directory }}/{{ app_name }}.sql
   when: app_dump.stat.exists
+
+- name: Restart service
+  sudo: yes
+  service: name="{{ app_name }}" state=started
