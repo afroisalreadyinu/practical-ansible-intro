@@ -1,4 +1,2 @@
 *.pyc
 *.egg-info
-ansible.cfg
-inventory
