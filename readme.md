@@ -48,13 +48,13 @@ port, here is what you should put into a file named `inventory`:
 
     server ansible_ssh_host=IP_ADRESS
 
-The best place to save this file would be in the `example` directory
-within this repo, because we will be running our the sample playbooks
-from there. Since we will be modifying the system quite a bit, you are
-recommended to use a server you can wipe and reinstall at will. The
-easiest way to do this is to use a VM, either locally or from a
-provider. Depending on which option you choose, the inventory file is
-going to be a bit different.
+A sample inventory file is included in the `example` directory within
+this repo, within which we will be running the sample playbooks. You
+can go ahead and change it to suit your setup. Since we will be
+modifying the system quite a bit, you are recommended to use a server
+you can wipe and reinstall at will. The easiest way to do this is to
+use a VM, either locally or from a provider. Depending on which option
+you choose, the inventory file is going to be a bit different.
 
 ### VM
 
@@ -232,18 +232,19 @@ leave no doubts that nearly every need can be served out of the box.
 
 In order to run the above playbook, save it in a file named
 `user_accounts.yml` next to the inventory. Or just navigate to the
-`example/part1` directory in this repo. Then run the following
-command:
+`example` directory in this repo. Then run the following command:
 
-    ansible-playbook -i ../inventory user_accounts.yml
+    ansible-playbook -i inventory part1/user_accounts.yml
 
-The `ansible-playbook` command runs playbooks instead of single
-modules, and is where the real Ansible magic lies, so we'll be using
-it much more often. When you run the above command, you should see a
-list of the tasks by name, followed by information on whether anything
-changed, and a final line that recaps this information. Here is what
-you should see when you run `playbook_simple.yml` for the first time
-on a fresh server:
+The reason we are running this playbook in the parent directory of the
+playbook is that the `ansible.cfg` file which makes sure that we are
+connecting as the right user is in there. The `ansible-playbook`
+command runs playbooks instead of single modules, and is where the
+real Ansible magic lies, so we'll be using it much more often. When
+you run the above command, you should see a list of the tasks by name,
+followed by information on whether anything changed, and a final line
+that recaps this information. Here is what you should see when you run
+`playbook_simple.yml` for the first time on a fresh server:
 
     PLAY RECAP **********************************************************
     server           : ok=5    changed=4    unreachable=0    failed=0
