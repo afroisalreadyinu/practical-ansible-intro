@@ -856,15 +856,28 @@ components of the application server:
 - include: provision.yml
 - include: app.yml app=facetweet
 - include: app.yml app=hackerit
+
+- hosts: server
+  roles:
+    - { role: db_restore, app: 'facetweet' }
+    - { role: db_restore, app: 'hackerit' }
 ```
 
 This playbook is essentially a splitting of the `deploy_app.yml`
-playbook above. The passwords are loaded now with a single task at the
+playbook above, along with a new role `db_restore` that restores an
+app database. The passwords are loaded now with a single task at the
 very beginning, and the roles that install the necessary packages and
 configure the database are in the playbook `provision.yml` that is
 imported into this playbook with an include directive. There is also a
 separate playbook for installing one web application, and this
 playbook is imported twice with the app variable set differently in
-each. If we were to add a new web application to our server, we would
-add it to `site.yml` along with the variables files in `vars`, and our
+each. The reason there is a new role for restoring the database,
+instead of using the existing `db_maintenance` role, is that the
+existing role uses tags to flip between dumping and restoring a
+database. It is not possible to set tags within playbooks, however,
+which means that we cannot force the restoring of a database without a
+command-line switch.
+
+If we were to add a new web application to our server, we would add it
+to `site.yml` along with the variables files in `vars`, and our
 deployment infrastructure would be ready to go.
