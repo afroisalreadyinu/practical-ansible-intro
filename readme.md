@@ -284,7 +284,7 @@ found in `example/part1/whoami.yml`):
 In order to see the output of the `whoami` command, you have to run
 the playbook command with the next level of verbosity:
 
-    ansible-playbook -i inventory whoami.py -v
+    ansible-playbook -i inventory part1/whoami.py -v
 
 Here is the output we should see when we run this playbook on the
 server that we provisioned with `playbook_simple.py`:
